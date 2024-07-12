@@ -1,2 +1,1 @@
-# hcdc
-HCDC - Helpcenter Character Detection Client
+# HCDC - Helpcenter Character Detection Client
