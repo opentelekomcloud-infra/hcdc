@@ -61,9 +61,9 @@ def get_parser():
     parser.add_argument(
         '--ocr-url',
         metavar='<ocr-url>',
-        default="https://ocr.eu-de.otc.t-systems.com/v2/16d53a84a13b49529d2e2c3646691288/ocr/general-text",
+        default="https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text",
         help='URL for OCR Service.'
-             ' Default: https://ocr.eu-de.otc.t-systems.com/v2/16d53a84a13b49529d2e2c3646691288/ocr/general-text'
+             ' Default: https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text'
     )
     args = parser.parse_args()
     return args
