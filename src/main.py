@@ -3,6 +3,8 @@ from multiprocessing import Pool
 import shutil
 import argparse
 import git
+import os
+from dotenv import load_dotenv
 
 
 def get_parser():
@@ -90,6 +92,14 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
+
+    load_dotenv()
+    auth_token = os.getenv('AUTH_TOKEN')
+    logging.debug("Environment variables: %s", os.environ)
+    if auth_token == '' or auth_token is None:
+        raise ValueError("Wrong or not specified value for AUTH_TOKEN environment variable!")
+    
+    print(auth_token)
 
     main_branch = args.main_branch
     branch = args.branch
