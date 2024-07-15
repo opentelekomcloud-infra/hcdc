@@ -183,9 +183,15 @@ def main():
                 images_with_chinese.append(entry["data"])
                 break
 
-    detect_dict = {
-        "detected": True,
-        "files": images_with_chinese
-    }
+    if images_with_chinese == []:
+        detect_dict = {
+            "detected": False,
+            "files": images_with_chinese
+        }
+    else:
+        detect_dict = {
+            "detected": True,
+            "files": images_with_chinese
+        }
     
     return json.dumps(detect_dict)
