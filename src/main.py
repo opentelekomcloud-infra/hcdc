@@ -124,7 +124,6 @@ def process_images(image_list, url, num_processes, headers):
     return results
 
 
-# Function to detect Chinese characters
 def has_chinese(text):
     # Regular expression to match Chinese characters
     chinese_pattern = re.compile(r'[\u4e00-\u9fff]+')
@@ -174,8 +173,8 @@ def main():
         headers=headers
     )
 
-    print(image_files)
-    print(json.dumps(results))
+    # print(image_files)
+    # print(json.dumps(results))
 
     # List to store image files with Chinese characters
     images_with_chinese = []
@@ -186,9 +185,8 @@ def main():
         for block in words_blocks:
             if has_chinese(block["words"]):
                 images_with_chinese.append(entry["data"])
-                break  # No need to check further blocks for this image
+                break
 
     # Print the list of image files containing Chinese characters
     print("Image files containing Chinese characters:")
-    for image_file in images_with_chinese:
-        print(image_file)
+    print(images_with_chinese)
