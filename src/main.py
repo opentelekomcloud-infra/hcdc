@@ -141,7 +141,6 @@ def main():
 
     load_dotenv('.env')
     auth_token = os.getenv('AUTH_TOKEN')
-    # logging.debug("Environment variables: %s", os.environ)
     if auth_token == '' or auth_token is None:
         raise ValueError("Wrong or not specified value for AUTH_TOKEN environment variable!")
 
@@ -173,13 +172,10 @@ def main():
         headers=headers
     )
 
-    # print(image_files)
-    # print(json.dumps(results))
+    logging.debug(image_files)
+    logging.debug(json.dumps(results))
 
-    # List to store image files with Chinese characters
     images_with_chinese = []
-
-    # Iterate through OCR response
     for entry in results:
         words_blocks = entry["response"]["result"]["words_block_list"]
         for block in words_blocks:
@@ -187,6 +183,9 @@ def main():
                 images_with_chinese.append(entry["data"])
                 break
 
-    # Print the list of image files containing Chinese characters
-    print("Image files containing Chinese characters:")
-    print(images_with_chinese)
+    detect_dict = {
+        "detected": True,
+        "files": images_with_chinese
+    }
+    
+    return json.dumps(detect_dict)
