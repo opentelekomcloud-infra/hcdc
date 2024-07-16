@@ -14,7 +14,7 @@
 
 import logging
 import argparse
-from image_processing import main as image_processing
+from src.image_processing import main as image_processing
 
 
 def get_parser():
