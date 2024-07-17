@@ -90,7 +90,7 @@ def main(args, changed_files):
         num_processes=num_processes,
     )
 
-    logging.debug(image_files)
+    logging.debug(textfile_list)
     logging.debug(json.dumps(results))
 
     text_with_chinese = []
