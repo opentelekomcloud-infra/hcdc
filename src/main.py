@@ -14,6 +14,7 @@
 
 import logging
 import argparse
+import git
 from src.image_processing import main as image_processing
 
 
@@ -72,6 +73,23 @@ def get_parser():
     args = parser.parse_args()
     return args
 
+def get_changed_files(repo_path, branch, main_branch):
+    repo = git.Repo(repo_path)
+
+    # Checkout the branch
+    repo.git.checkout(branch)
+
+    # Fetch the main branch to ensure we have the latest changes
+    repo.remotes.origin.fetch(main_branch)
+
+    # Get the diff between the main branch and the specified branch
+    diff = repo.git.diff(main_branch, branch, name_only=True)
+    
+    # Split the output by lines
+    changed_files = diff.splitlines()
+
+    return changed_files
+
 def main():
 
     args = get_parser()
@@ -81,6 +99,14 @@ def main():
     else:
         logging.basicConfig(level=logging.INFO)
 
-    json_output = image_processing(args)
+    changed_files=get_changed_files(
+        args.repo_path,
+        args.branch,
+        args.main_branch)
+    
+    json_output = image_processing(
+        args=args,
+        changed_files=changed_files
+    )
 
     return json_output

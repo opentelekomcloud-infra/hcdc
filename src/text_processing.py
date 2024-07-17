@@ -15,6 +15,7 @@
 import logging
 from multiprocessing import Pool
 import shutil
+import git
 import os
 from dotenv import load_dotenv
 import requests
@@ -24,9 +25,24 @@ import json
 import re
 
 
-def get_changed_image_files(changed_files, file_extensions):
+def get_changed_text_files(repo_path, branch, main_branch, file_extensions):
+    repo = git.Repo(repo_path)
+
+    # Checkout the branch
+    repo.git.checkout(branch)
+
+    # Fetch the main branch to ensure we have the latest changes
+    repo.remotes.origin.fetch(main_branch)
+
+    # Get the diff between the main branch and the specified branch
+    diff = repo.git.diff(main_branch, branch, name_only=True)
+    
+    # Split the output by lines
+    changed_files = diff.splitlines()
+
     # Filter files by the given extensions
     image_files = [file for file in changed_files if any(file.endswith(ext) for ext in file_extensions)]
+
     return image_files
 
 
@@ -69,12 +85,15 @@ def has_chinese(text):
     chinese_pattern = re.compile(r'[\u4e00-\u9fff]+')
     return bool(chinese_pattern.search(text))
 
-def main(args, changed_files):
+def main(args):
     load_dotenv('.env')
     auth_token = os.getenv('AUTH_TOKEN')
     if auth_token == '' or auth_token is None:
         raise ValueError("Wrong or not specified value for AUTH_TOKEN environment variable!")
 
+    main_branch = args.main_branch
+    branch = args.branch
+    repo_path = args.repo_path
     file_extensions = args.file_extensions
     num_processes = args.processes
     ocr_url = args.ocr_url
@@ -82,7 +101,9 @@ def main(args, changed_files):
     logging.info("Starting to analyze changed images...")
 
     image_files = get_changed_image_files(
-        changed_files=changed_files,
+        repo_path=repo_path,
+        branch=branch,
+        main_branch=main_branch,
         file_extensions=file_extensions
     )
 
