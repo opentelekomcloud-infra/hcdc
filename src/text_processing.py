@@ -50,14 +50,14 @@ def analyze_text(data):
     if has_chinese(file_contents):
         return {
             "file": data, 
-            "file_contents": file_contents
+            "file_contents": file_contents,
             "detected": True
         }
 
     else:
         return {
             "file": data, 
-            "file_contents": file_contents
+            "file_contents": file_contents,
             "detected": False
         }
 
