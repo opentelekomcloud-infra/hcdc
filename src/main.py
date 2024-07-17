@@ -124,4 +124,4 @@ def main():
         changed_files=changed_files
     )
 
-    return json_output_images
+    return output_text
