@@ -115,14 +115,17 @@ def main():
         args.main_branch
     )
     
-    # output_images = image_processing (
-    #     args=args,
-    #     changed_files=changed_files
-    # )
+    output_images = image_processing (
+        args=args,
+        changed_files=changed_files
+    )
 
     output_text = text_processing (
         args=args,
         changed_files=changed_files
     )
 
-    return json.dumps(output_text)
+    return json.dumps({
+        "images": output_images,
+        "text": output_text
+    })
