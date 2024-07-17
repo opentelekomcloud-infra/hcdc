@@ -18,16 +18,13 @@ import shutil
 import git
 import os
 from dotenv import load_dotenv
-import requests
 from functools import partial
 import base64
 import json
 import re
 
 
-def get_changed_text_files(changed_files):
-    file_extensions = ['.txt', '.md', '.rst', '.ini', '.cfg', '.json', '.xml', '.yml', '.yaml']
-
+def get_changed_text_files(changed_files, file_extensions):
     # Filter files by the given extensions
     text_files = [file for file in changed_files if any(file.endswith(ext) for ext in file_extensions)]
 
@@ -46,25 +43,29 @@ def encode_image_to_base64(image_path):
     return base64_string
 
 
-def post_request(data, url, headers):
-    try:
-        image_base64 = encode_image_to_base64(data)
-        final_json = {
-            "image":image_base64,
-            "detect_direction":False,
-            "quick_mode":False
+def analyze_text(data):
+    with open(data, 'r') as file:
+        file_contents = file.read()
+    
+    if has_chinese(file_contents):
+        return {
+            "file": data, 
+            "file_contents": file_contents
+            "detected": True
         }
-        response = requests.post(url, json=final_json, headers=headers)
-        if response.status_code == 200:
-            return {"data": data, "status": "success", "response": response.json()}
-        else:
-            return {"data": data, "status": "failure", "status_code": response.status_code, "response": response.text}
-    except requests.exceptions.RequestException as e:
-        return {"data": data, "status": "error", "error": str(e)}
 
-def process_images(image_list, url, num_processes, headers):
+    else:
+        return {
+            "file": data, 
+            "file_contents": file_contents
+            "detected": False
+        }
+
+    
+
+def process_textfiles(textfile_list, num_processes):
     with Pool(num_processes) as pool:
-        results = pool.map(partial(post_request, url=url, headers=headers), image_list)
+        results = pool.map(partial(analyze_text), textfile_list)
     return results
 
 
@@ -74,56 +75,38 @@ def has_chinese(text):
     return bool(chinese_pattern.search(text))
 
 def main(args):
-    load_dotenv('.env')
-    auth_token = os.getenv('AUTH_TOKEN')
-    if auth_token == '' or auth_token is None:
-        raise ValueError("Wrong or not specified value for AUTH_TOKEN environment variable!")
-
     file_extensions = args.text_file_extensions
     num_processes = args.processes
-    ocr_url = args.ocr_url
 
-    logging.info("Starting to analyze changed images...")
+    logging.info("Starting to analyze changed textfiles...")
 
-    image_files = get_changed_image_files(
-        repo_path=repo_path,
-        branch=branch,
-        main_branch=main_branch,
+    textfile_list = get_changed_text_files(
+        changed_files=changed_files,
         file_extensions=file_extensions
     )
 
-    headers = {
-        "X-Auth-Token": auth_token,
-        "Content-Type": "application/json"
-    }
-
-    results = process_images(
-        image_list=image_files,
-        url=ocr_url,
+    results = process_textfiles(
+        textfile_list=textfile_list,
         num_processes=num_processes,
-        headers=headers
     )
 
     logging.debug(image_files)
     logging.debug(json.dumps(results))
 
-    images_with_chinese = []
+    text_with_chinese = []
     for entry in results:
-        words_blocks = entry["response"]["result"]["words_block_list"]
-        for block in words_blocks:
-            if has_chinese(block["words"]):
-                images_with_chinese.append(entry["data"])
-                break
+        if entry["detected"] is True:
+            text_with_chinese.append(entry)
 
-    if images_with_chinese == []:
+    if text_with_chinese == []:
         detect_dict = {
             "detected": False,
-            "files": images_with_chinese
+            "files": text_with_chinese
         }
     else:
         detect_dict = {
             "detected": True,
-            "files": images_with_chinese
+            "files": text_with_chinese
         }
     
-    return json.dumps(detect_dict)
+    return detect_dict

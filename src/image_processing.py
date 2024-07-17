@@ -120,4 +120,4 @@ def main(args, changed_files):
             "files": images_with_chinese
         }
     
-    return json.dumps(detect_dict)
+    return detect_dict
