@@ -17,6 +17,7 @@ import argparse
 import git
 from src.image_processing import main as image_processing
 from src.text_processing import main as text_processing
+import json
 
 
 def get_parser():
@@ -124,4 +125,4 @@ def main():
         changed_files=changed_files
     )
 
-    return output_text
+    return json.dumps(output_text)
