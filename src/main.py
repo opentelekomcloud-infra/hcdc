@@ -42,12 +42,20 @@ def get_parser():
              ' Default: .'
     )
     parser.add_argument(
-        '--file-extensions',
+        '--image-file-extensions',
         metavar='<file-extensions>',
         default=['.jpg', '.png', '.jpeg', '.gif', '.tiff', '.bmp'],
         nargs='+',
-        help='File extensions which should be checked.'
-             ' Default: .jpg .png .jpeg .gif .webp .avif'
+        help='Image file extensions which should be checked.'
+             'Default: .jpg .png .jpeg .gif .webp .avif'
+    )
+    parser.add_argument(
+        '--text-file-extensions',
+        metavar='<file-extensions>',
+        default=['.txt', '.md', '.rst', '.ini', '.cfg', '.json', '.xml', '.yml', '.yaml', '.py'],
+        nargs='+',
+        help='Text file extensions which should be checked.'
+             'Default: .txt .md .rst .ini .cfg. json .xml .yml .yaml .py'
     )
     parser.add_argument(
         '--branch',

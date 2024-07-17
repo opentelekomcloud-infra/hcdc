@@ -25,25 +25,13 @@ import json
 import re
 
 
-def get_changed_text_files(repo_path, branch, main_branch, file_extensions):
-    repo = git.Repo(repo_path)
-
-    # Checkout the branch
-    repo.git.checkout(branch)
-
-    # Fetch the main branch to ensure we have the latest changes
-    repo.remotes.origin.fetch(main_branch)
-
-    # Get the diff between the main branch and the specified branch
-    diff = repo.git.diff(main_branch, branch, name_only=True)
-    
-    # Split the output by lines
-    changed_files = diff.splitlines()
+def get_changed_text_files(changed_files):
+    file_extensions = ['.txt', '.md', '.rst', '.ini', '.cfg', '.json', '.xml', '.yml', '.yaml']
 
     # Filter files by the given extensions
-    image_files = [file for file in changed_files if any(file.endswith(ext) for ext in file_extensions)]
+    text_files = [file for file in changed_files if any(file.endswith(ext) for ext in file_extensions)]
 
-    return image_files
+    return text_files
 
 
 def encode_image_to_base64(image_path):
@@ -91,10 +79,7 @@ def main(args):
     if auth_token == '' or auth_token is None:
         raise ValueError("Wrong or not specified value for AUTH_TOKEN environment variable!")
 
-    main_branch = args.main_branch
-    branch = args.branch
-    repo_path = args.repo_path
-    file_extensions = args.file_extensions
+    file_extensions = args.text_file_extensions
     num_processes = args.processes
     ocr_url = args.ocr_url
 

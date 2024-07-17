@@ -75,7 +75,7 @@ def main(args, changed_files):
     if auth_token == '' or auth_token is None:
         raise ValueError("Wrong or not specified value for AUTH_TOKEN environment variable!")
 
-    file_extensions = args.file_extensions
+    file_extensions = args.image_file_extensions
     num_processes = args.processes
     ocr_url = args.ocr_url
 
