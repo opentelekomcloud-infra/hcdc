@@ -74,7 +74,7 @@ def has_chinese(text):
     chinese_pattern = re.compile(r'[\u4e00-\u9fff]+')
     return bool(chinese_pattern.search(text))
 
-def main(args):
+def main(args, changed_files):
     file_extensions = args.text_file_extensions
     num_processes = args.processes
 
