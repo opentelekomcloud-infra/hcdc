@@ -72,7 +72,10 @@ def process_textfiles(textfile_list, num_processes):
 def has_chinese(text):
     # Regular expression to match Chinese characters
     chinese_pattern = re.compile(r'[\u4e00-\u9fff]+')
-    res["detected"] = False
+    res = {
+        "detected": False,
+        "matches": []
+    }
     matches = chinese_pattern.findall(text)
     if matches is None:
         return res
