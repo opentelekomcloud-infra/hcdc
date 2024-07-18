@@ -76,9 +76,7 @@ def has_chinese(text):
         for match in chinese_pattern.finditer(line):
             match_info = {
                 "text": match.group(),
-                "line": line_num,
-                "start_position": match.start() + 1,  # +1 to convert to 1-based index
-                "end_position": match.end()  # end position as 1-based index
+                "line": line_num
             }
             res["matches"].append(match_info)
     
