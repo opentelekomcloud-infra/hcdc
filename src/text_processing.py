@@ -73,9 +73,10 @@ def has_chinese(text):
     
     lines = text.splitlines()
     for line_num, line in enumerate(lines, 1):
-        for match in chinese_pattern.finditer(line):
+        matches = chinese_pattern.findall(line)
+        for match in matches:
             match_info = {
-                "text": match.group(),
+                "text": match,
                 "line": line_num
             }
             res["matches"].append(match_info)
