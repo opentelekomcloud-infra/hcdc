@@ -65,7 +65,7 @@ def process_textfiles(textfile_list, num_processes):
     return results
 
 def has_chinese(text):
-    chinese_pattern = re.compile(r'[\u4e00-\u9fff]')
+    chinese_pattern = re.compile(r'[\u4e00-\u9fff]+')
     res = {
         "detected": False,
         "matches": []
@@ -75,9 +75,10 @@ def has_chinese(text):
     for line_num, line in enumerate(lines, 1):
         for match in chinese_pattern.finditer(line):
             match_info = {
-                "character": match.group(),
+                "text": match.group(),
                 "line": line_num,
-                "position": match.start() + 1  # +1 to convert to 1-based index
+                "start_position": match.start() + 1,  # +1 to convert to 1-based index
+                "end_position": match.end()  # end position as 1-based index
             }
             res["matches"].append(match_info)
     
