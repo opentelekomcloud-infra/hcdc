@@ -126,7 +126,6 @@ def main(args, changed_files):
         words_blocks = entry["response"]["result"]["words_block_list"]
         for block in words_blocks:
             chinese_result = has_chinese(block["words"])
-            print(chinese_result)
             if chinese_result["detected"]:
                 if block["confidence"] < 0.7:
                     logging.warning(f"Detected Chinese character {chinese_result['char']} in file {entry['data']} with low confidence of {block['confidence']}.")

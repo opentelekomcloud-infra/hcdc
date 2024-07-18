@@ -36,10 +36,12 @@ def analyze_text(data):
         with open(data, 'r') as file:
             file_contents = file.read()
         
-        if has_chinese(file_contents):
+        result = has_chinese(file_contents)
+
+        if result["detected"]:
             return {
                 "file": data, 
-                "file_contents": file_contents,
+                "file_contents": result["matches"],
                 "detected": True,
                 "status": "success"
             }
@@ -47,7 +49,7 @@ def analyze_text(data):
         else:
             return {
                 "file": data, 
-                "file_contents": file_contents,
+                "file_contents": [],
                 "detected": False,
                 "status": "success"
             }
@@ -70,7 +72,14 @@ def process_textfiles(textfile_list, num_processes):
 def has_chinese(text):
     # Regular expression to match Chinese characters
     chinese_pattern = re.compile(r'[\u4e00-\u9fff]+')
-    return bool(chinese_pattern.search(text))
+    res["detected"] = False
+    matches = chinese_pattern.findall(text)
+    if matches is None:
+        return res
+    else:
+        res["detected"] = True
+        res["matches"] = matches
+        return res
 
 def main(args, changed_files):
     file_extensions = args.text_file_extensions
