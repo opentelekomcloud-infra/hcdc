@@ -61,6 +61,7 @@ def analyze_text(data):
     
 
 def process_textfiles(textfile_list, num_processes):
+    num_processes = int(num_processes)
     with Pool(num_processes) as pool:
         results = pool.map(partial(analyze_text), textfile_list)
     return results

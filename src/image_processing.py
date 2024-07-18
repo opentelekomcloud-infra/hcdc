@@ -65,6 +65,7 @@ def post_request(data, url, headers):
         return {"data": data, "status": "error", "error": str(e)}
 
 def process_images(image_list, url, num_processes, headers):
+    num_processes = int(num_processes)
     with Pool(num_processes) as pool:
         results = pool.map(partial(post_request, url=url, headers=headers), image_list)
     return results

@@ -54,7 +54,7 @@ def get_parser():
     parser.add_argument(
         '--text-file-extensions',
         metavar='<file-extensions>',
-        default=['.txt', '.md', '.rst', '.ini', '.cfg', '.json', '.xml', '.yml', '.yaml', '.py'],
+        default=['.txt', '.md', '.rst', '.ini', '.cfg', '.json', '.xml', '.yml', '.yaml', '.py', '.html', '.htm'],
         nargs='+',
         help='Text file extensions which should be checked.'
              'Default: .txt .md .rst .ini .cfg. json .xml .yml .yaml .py'
