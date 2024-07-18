@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# The provided script analyzes text files to detect the presence of
+# Chinese characters and processes them using multiprocessing.
+
 import logging
 from multiprocessing import Pool
 import shutil
@@ -23,13 +26,9 @@ import base64
 import json
 import re
 
-
 def get_changed_text_files(changed_files, file_extensions):
-    # Filter files by the given extensions
-    text_files = [file for file in changed_files if any(file.endswith(ext) for ext in file_extensions)]
-
+    text_files = [file for file in changed_files if os.path.splitext(file)[1] in file_extensions]
     return text_files
-
 
 def analyze_text(data):
     try:
@@ -41,48 +40,51 @@ def analyze_text(data):
         if result["detected"]:
             return {
                 "file": data, 
-                "file_contents": result["matches"],
+                "matches": result["matches"],
                 "detected": True,
                 "status": "success"
             }
-
         else:
             return {
                 "file": data, 
-                "file_contents": [],
+                "matches": [],
                 "detected": False,
                 "status": "success"
             }
     except Exception as e:
         logging.error(f"Failed to analyze textfile {data}: {e}")
         return {
-                "file": data, 
-                "status": "failure"
-            }
-
-    
+            "file": data, 
+            "status": "failure"
+        }
 
 def process_textfiles(textfile_list, num_processes):
-    num_processes = int(num_processes)
+    num_processes = max(1, int(num_processes))
     with Pool(num_processes) as pool:
-        results = pool.map(partial(analyze_text), textfile_list)
+        results = pool.map(analyze_text, textfile_list)
     return results
 
-
 def has_chinese(text):
-    # Regular expression to match Chinese characters
-    chinese_pattern = re.compile(r'[\u4e00-\u9fff]+')
+    chinese_pattern = re.compile(r'[\u4e00-\u9fff]')
     res = {
         "detected": False,
         "matches": []
     }
-    matches = chinese_pattern.findall(text)
-    if len(matches) == 0:
-        return res
-    else:
+    
+    lines = text.splitlines()
+    for line_num, line in enumerate(lines, 1):
+        for match in chinese_pattern.finditer(line):
+            match_info = {
+                "character": match.group(),
+                "line": line_num,
+                "position": match.start() + 1  # +1 to convert to 1-based index
+            }
+            res["matches"].append(match_info)
+    
+    if res["matches"]:
         res["detected"] = True
-        res["matches"] = matches
-        return res
+    
+    return res
 
 def main(args, changed_files):
     file_extensions = args.text_file_extensions
@@ -103,20 +105,11 @@ def main(args, changed_files):
     logging.debug(textfile_list)
     logging.debug(json.dumps(results))
 
-    text_with_chinese = []
-    for entry in results:
-        if entry["detected"] is True:
-            text_with_chinese.append(entry)
+    text_with_chinese = [entry for entry in results if entry.get("detected")]
 
-    if text_with_chinese == []:
-        detect_dict = {
-            "detected": False,
-            "files": text_with_chinese
-        }
-    else:
-        detect_dict = {
-            "detected": True,
-            "files": text_with_chinese
-        }
+    detect_dict = {
+        "detected": bool(text_with_chinese),
+        "files": text_with_chinese
+    }
     
     return detect_dict
