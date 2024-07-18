@@ -77,8 +77,7 @@ def has_chinese(text):
         "matches": []
     }
     matches = chinese_pattern.findall(text)
-    print(matches)
-    if matches is None:
+    if len(matches) == 0:
         return res
     else:
         res["detected"] = True
