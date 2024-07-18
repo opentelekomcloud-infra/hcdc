@@ -31,35 +31,32 @@ def get_changed_text_files(changed_files, file_extensions):
     return text_files
 
 
-def encode_image_to_base64(image_path):
-    # Open the image file in binary mode
-    with open(image_path, "rb") as image_file:
-        # Read the image data
-        image_data = image_file.read()
-        # Encode the image data to Base64
-        base64_encoded_data = base64.b64encode(image_data)
-        # Convert the Base64 bytes to a string
-        base64_string = base64_encoded_data.decode('utf-8')
-    return base64_string
-
-
 def analyze_text(data):
-    with open(data, 'r') as file:
-        file_contents = file.read()
-    
-    if has_chinese(file_contents):
-        return {
-            "file": data, 
-            "file_contents": file_contents,
-            "detected": True
-        }
+    try:
+        with open(data, 'r') as file:
+            file_contents = file.read()
+        
+        if has_chinese(file_contents):
+            return {
+                "file": data, 
+                "file_contents": file_contents,
+                "detected": True,
+                "status": "success"
+            }
 
-    else:
+        else:
+            return {
+                "file": data, 
+                "file_contents": file_contents,
+                "detected": False,
+                "status": "success"
+            }
+    except Exception as e:
+        logging.error(f"Failed to analyze textfile {data}: {e}")
         return {
-            "file": data, 
-            "file_contents": file_contents,
-            "detected": False
-        }
+                "file": data, 
+                "status": "failure"
+            }
 
     
 

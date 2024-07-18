@@ -31,20 +31,26 @@ def get_changed_image_files(changed_files, file_extensions):
 
 
 def encode_image_to_base64(image_path):
-    # Open the image file in binary mode
-    with open(image_path, "rb") as image_file:
-        # Read the image data
-        image_data = image_file.read()
-        # Encode the image data to Base64
-        base64_encoded_data = base64.b64encode(image_data)
-        # Convert the Base64 bytes to a string
-        base64_string = base64_encoded_data.decode('utf-8')
-    return base64_string
+    try:
+        # Open the image file in binary mode
+        with open(image_path, "rb") as image_file:
+            # Read the image data
+            image_data = image_file.read()
+            # Encode the image data to Base64
+            base64_encoded_data = base64.b64encode(image_data)
+            # Convert the Base64 bytes to a string
+            base64_string = base64_encoded_data.decode('utf-8')
+        return base64_string
+    except Exception as e:
+        logging.error(f"Failed to analyze image {image_path}: {e}")
+        return "Error"
 
 
 def post_request(data, url, headers):
     try:
         image_base64 = encode_image_to_base64(data)
+        if image_base64 == "Error":
+            return {"data": data, "status": "failure"}
         final_json = {
             "image":image_base64,
             "detect_direction":False,
@@ -65,9 +71,20 @@ def process_images(image_list, url, num_processes, headers):
 
 
 def has_chinese(text):
-    # Regular expression to match Chinese characters
-    chinese_pattern = re.compile(r'[\u4e00-\u9fff]+')
-    return bool(chinese_pattern.search(text))
+    # Regular expression to match Chinese characters excluding \u4e00 and \u4eba which can be confused with - and ^
+    chinese_pattern = re.compile(r'(?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+')
+    match = chinese_pattern.search(text)
+    
+    if match:
+        return {
+            "detected": True,
+            "char": match.group(0)
+        }
+    else:
+        return {
+            "detected": False,
+            "char": None
+        }
 
 def main(args, changed_files):
     load_dotenv('.env')
@@ -103,10 +120,22 @@ def main(args, changed_files):
 
     images_with_chinese = []
     for entry in results:
+        if entry["status"] == "failure":
+            continue
         words_blocks = entry["response"]["result"]["words_block_list"]
         for block in words_blocks:
-            if has_chinese(block["words"]):
-                images_with_chinese.append(entry["data"])
+            chinese_result = has_chinese(block["words"])
+            if chinese_result["detected"]:
+                if block["confidence"] < 0.7:
+                    logging.warning(f"Detected Chinese character {chinese_result["char"]} in file {entry["data"]} with low confidence of {block["confidence"]}.")
+                else:
+                    images_with_chinese.append({
+                        "file": entry["data"],
+                        "confidence": block["confidence"],
+                        "detected_char": chinese_result["char"],
+                        "detected": True,
+                        "status": entry["status"]
+                    })
                 break
 
     if images_with_chinese == []:
