@@ -72,21 +72,23 @@ def detect_chars(text, regex_pattern):
             "matches": [],
         }
     try:
-        char_pattern = re.compile(regex_pattern)
+        for pattern in regex_pattern:
+            char_pattern = re.compile(pattern)
+            
+            
+            lines = text.splitlines()
+            for line_num, line in enumerate(lines, 1):
+                matches = char_pattern.findall(line)
+                for match in matches:
+                    match_info = {
+                        "text": match,
+                        "line": line_num
+                    }
+                    res["matches"].append(match_info)
+            
+            if res["matches"]:
+                res["detected"] = True
         
-        
-        lines = text.splitlines()
-        for line_num, line in enumerate(lines, 1):
-            matches = char_pattern.findall(line)
-            for match in matches:
-                match_info = {
-                    "text": match,
-                    "line": line_num
-                }
-                res["matches"].append(match_info)
-        
-        if res["matches"]:
-            res["detected"] = True
     except Exception as e:
         logging.error(f"Invalid regex pattern: {e}")
         sys.exit(1)
