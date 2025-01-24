@@ -100,8 +100,8 @@ def get_changed_files(repo_path, branch, main_branch):
     # Fetch the main branch to ensure we have the latest changes
     repo.remotes.origin.fetch(main_branch)
 
-    # Get the diff between the main branch and the specified branch
-    diff = repo.git.diff(main_branch, branch, name_only=True)
+    # Get the diff between the main branch and the specified branch, only changed and new files
+    diff = repo.git.diff(main_branch, branch, name_only=True, diff_filter='AM')
     
     # Split the output by lines
     changed_files = diff.splitlines()
