@@ -129,6 +129,7 @@ def main(args, changed_files):
         for block in words_blocks:
             chinese_result = has_chinese(block["words"])
             if chinese_result["detected"]:
+                logging.deburg("Chinese Result:" + str(chinese_result))
                 if block["confidence"] < 0.7:
                     logging.warning(f"Detected Chinese character {chinese_result['char']} in file {entry['data']} with low confidence of {block['confidence']}.")
                 else:
