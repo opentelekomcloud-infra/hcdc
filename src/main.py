@@ -80,6 +80,14 @@ def get_parser():
         help='URL for OCR Service.'
              ' Default: https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text'
     )
+    parser.add_argument(
+        '--regex-pattern',
+        metavar='<regex-pattern>',
+        default=['(?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+'],
+        nargs='+',
+        help='Regex pattern to check for unwanted characters.'
+             'Default: (?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+'
+    )
     args = parser.parse_args()
     return args
 

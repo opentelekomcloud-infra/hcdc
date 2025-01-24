@@ -25,17 +25,18 @@ from functools import partial
 import base64
 import json
 import re
+import sys
 
 def get_changed_text_files(changed_files, file_extensions):
     text_files = [file for file in changed_files if os.path.splitext(file)[1] in file_extensions]
     return text_files
 
-def analyze_text(data):
+def analyze_text(data, regex_pattern):
     try:
         with open(data, 'r') as file:
             file_contents = file.read()
         
-        result = has_chinese(file_contents)
+        result = detect_chars(file_contents, regex_pattern)
 
         if result["detected"]:
             return {
@@ -58,37 +59,43 @@ def analyze_text(data):
             "status": "failure"
         }
 
-def process_textfiles(textfile_list, num_processes):
+def process_textfiles(textfile_list, num_processes, regex_pattern):
     num_processes = max(1, int(num_processes))
     with Pool(num_processes) as pool:
-        results = pool.map(analyze_text, textfile_list)
+        analyze_text_args = partial(analyze_text, regex_pattern=regex_pattern)
+        results = pool.map(analyze_text_args, textfile_list)
     return results
 
-def has_chinese(text):
-    chinese_pattern = re.compile(r'[\u4e00-\u9fff]+')
+def detect_chars(text, regex_pattern):
     res = {
-        "detected": False,
-        "matches": []
-    }
-    
-    lines = text.splitlines()
-    for line_num, line in enumerate(lines, 1):
-        matches = chinese_pattern.findall(line)
-        for match in matches:
-            match_info = {
-                "text": match,
-                "line": line_num
-            }
-            res["matches"].append(match_info)
-    
-    if res["matches"]:
-        res["detected"] = True
-    
+            "detected": False,
+            "matches": [],
+        }
+    try:
+        char_pattern = re.compile(regex_pattern)
+        
+        
+        lines = text.splitlines()
+        for line_num, line in enumerate(lines, 1):
+            matches = char_pattern.findall(line)
+            for match in matches:
+                match_info = {
+                    "text": match,
+                    "line": line_num
+                }
+                res["matches"].append(match_info)
+        
+        if res["matches"]:
+            res["detected"] = True
+    except Exception as e:
+        logging.error(f"Invalid regex pattern: {e}")
+        sys.exit(1)
     return res
 
 def main(args, changed_files):
     file_extensions = args.text_file_extensions
     num_processes = args.processes
+    regex_pattern = args.regex_pattern
 
     logging.info("Starting to analyze changed textfiles...")
 
@@ -100,6 +107,7 @@ def main(args, changed_files):
     results = process_textfiles(
         textfile_list=textfile_list,
         num_processes=num_processes,
+        regex_pattern=regex_pattern,
     )
 
     logging.debug(textfile_list)
