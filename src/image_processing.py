@@ -71,21 +71,31 @@ def process_images(image_list, url, num_processes, headers):
     return results
 
 
-def has_chinese(text):
-    # Regular expression to match Chinese characters excluding \u4e00 and \u4eba which can be confused with - and ^
-    chinese_pattern = re.compile(r'(?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+')
-    match = chinese_pattern.search(text)
-    
-    if match:
-        return {
-            "detected": True,
-            "char": match.group(0)
-        }
-    else:
-        return {
+def detect_chars(text, regex_pattern):
+    res = {
             "detected": False,
-            "char": None
+            "matches": [],
         }
+    try:
+        for pattern in regex_pattern:
+            char_pattern = re.compile(pattern)            
+            lines = text.splitlines()
+            for line_num, line in enumerate(lines, 1):
+                matches = char_pattern.findall(line)
+                for match in matches:
+                    match_info = {
+                        "text": match,
+                        "line": line_num
+                    }
+                    res["matches"].append(match_info)
+            
+            if res["matches"]:
+                res["detected"] = True
+        
+    except Exception as e:
+        logging.error(f"Invalid regex pattern: {e}")
+        sys.exit(1)
+    return res
 
 def main(args, changed_files):
     load_dotenv('.env')
@@ -96,6 +106,7 @@ def main(args, changed_files):
     file_extensions = args.image_file_extensions
     num_processes = args.processes
     ocr_url = args.ocr_url
+    regex_pattern = args.regex_pattern
 
     logging.info("Starting to analyze changed images...")
 
@@ -127,7 +138,7 @@ def main(args, changed_files):
             continue
         words_blocks = entry["response"]["result"]["words_block_list"]
         for block in words_blocks:
-            chinese_result = has_chinese(block["words"])
+            chinese_result = detect_chars(block["words"], regex_pattern=regex_pattern)
             if chinese_result["detected"]:
                 if block["confidence"] < 0.7:
                     logging.warning(f"Detected Chinese character {chinese_result['char']} in file {entry['data']} with low confidence of {block['confidence']}.")
