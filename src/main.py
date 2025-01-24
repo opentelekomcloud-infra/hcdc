@@ -83,10 +83,17 @@ def get_parser():
     parser.add_argument(
         '--regex-pattern',
         metavar='<regex-pattern>',
-        default=[r'(?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+'],
+        default=[r'(?![\u4e09\u767d\u76ee\u4e09\u8279\u53e3\u533a\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+'],
         nargs='+',
         help='Regex pattern to check for unwanted characters.'
-             'Default: ' + (r'(?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+')
+             'Default: ' + (r'(?![\u4e09\u767d\u76ee\u4e09\u8279\u53e3\u533a\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+')
+    )
+    parser.add_argument(
+        '--confidence',
+        metavar='<processes>',
+        default=0.97,
+        help='Confidence for image recognition. Default 0.95'
+             ' Default: 0.97'
     )
     args = parser.parse_args()
     return args

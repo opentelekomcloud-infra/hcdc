@@ -135,7 +135,7 @@ def main(args, changed_files):
         for block in words_blocks:
             chinese_result = detect_chars(block["words"], regex_pattern=regex_pattern)
             if chinese_result["detected"]:
-                if block["confidence"] < 0.7:
+                if block["confidence"] < float(args.confidence):
                     logging.warning(f"Detected Chinese character {chinese_result['char']} in file {entry['data']} with low confidence of {block['confidence']}.")
                 else:
                     images_with_chinese.append({
