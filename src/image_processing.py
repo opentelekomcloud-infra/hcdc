@@ -72,30 +72,25 @@ def process_images(image_list, url, num_processes, headers):
 
 
 def detect_chars(text, regex_pattern):
-    res = {
-            "detected": False,
-            "matches": [],
-        }
+
     try:
         for pattern in regex_pattern:
             char_pattern = re.compile(pattern)            
-            lines = text.splitlines()
-            for line_num, line in enumerate(lines, 1):
-                matches = char_pattern.findall(line)
-                for match in matches:
-                    match_info = {
-                        "text": match,
-                        "line": line_num
-                    }
-                    res["matches"].append(match_info)
-            
-            if res["matches"]:
-                res["detected"] = True
+            match = char_pattern.search(text)
+            if match:
+                return {
+                    "detected": True,
+                    "char": match.group(0)
+                }
+            else:
+                return {
+                    "detected": False,
+                    "char": None
+                }
         
     except Exception as e:
         logging.error(f"Invalid regex pattern: {e}")
         sys.exit(1)
-    return res
 
 def main(args, changed_files):
     load_dotenv('.env')
