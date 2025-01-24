@@ -83,10 +83,10 @@ def get_parser():
     parser.add_argument(
         '--regex-pattern',
         metavar='<regex-pattern>',
-        default=['(?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+'],
+        default=[r'(?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+'],
         nargs='+',
         help='Regex pattern to check for unwanted characters.'
-             'Default: (?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+'
+             'Default: ' + (r'(?![\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+')
     )
     args = parser.parse_args()
     return args

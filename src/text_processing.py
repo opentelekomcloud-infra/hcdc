@@ -73,9 +73,7 @@ def detect_chars(text, regex_pattern):
         }
     try:
         for pattern in regex_pattern:
-            char_pattern = re.compile(pattern)
-            
-            
+            char_pattern = re.compile(pattern)            
             lines = text.splitlines()
             for line_num, line in enumerate(lines, 1):
                 matches = char_pattern.findall(line)
