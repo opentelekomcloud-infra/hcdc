@@ -104,7 +104,7 @@ def main(args, changed_files):
         file_extensions=file_extensions
     )
 
-    logging.info("Changed images:" + image_files)
+    logging.info("Changed images:" + str(image_files))
 
     headers = {
         "X-Auth-Token": auth_token,
