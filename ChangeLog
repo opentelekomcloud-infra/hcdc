@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* Add confidence value to args and fix regex
 * Fix issues
 * Fix issues
 * Added regex arg to image recognition
