@@ -14,7 +14,7 @@
 
 import logging
 from multiprocessing import Pool
-import shutil
+# import shutil
 import os
 from dotenv import load_dotenv
 import requests
@@ -22,11 +22,15 @@ from functools import partial
 import base64
 import json
 import re
+import sys
 
 
 def get_changed_image_files(changed_files, file_extensions):
     # Filter files by the given extensions
-    image_files = [file for file in changed_files if any(file.endswith(ext) for ext in file_extensions)]
+    image_files = [
+        file for file in changed_files
+        if any(file.endswith(ext) for ext in file_extensions)
+    ]
     return image_files
 
 
@@ -52,22 +56,35 @@ def post_request(data, url, headers):
         if image_base64 == "Error":
             return {"data": data, "status": "failure"}
         final_json = {
-            "image":image_base64,
-            "detect_direction":False,
-            "quick_mode":False
+            "image": image_base64,
+            "detect_direction": False,
+            "quick_mode": False
         }
         response = requests.post(url, json=final_json, headers=headers)
         if response.status_code == 200:
-            return {"data": data, "status": "success", "response": response.json()}
+            return {
+                "data": data,
+                "status": "success",
+                "response": response.json()
+            }
         else:
-            return {"data": data, "status": "failure", "status_code": response.status_code, "response": response.text}
+            return {
+                "data": data,
+                "status": "failure",
+                "status_code": response.status_code,
+                "response": response.text
+            }
     except requests.exceptions.RequestException as e:
         return {"data": data, "status": "error", "error": str(e)}
+
 
 def process_images(image_list, url, num_processes, headers):
     num_processes = int(num_processes)
     with Pool(num_processes) as pool:
-        results = pool.map(partial(post_request, url=url, headers=headers), image_list)
+        results = pool.map(
+            partial(post_request, url=url, headers=headers),
+            image_list
+        )
     return results
 
 
@@ -75,7 +92,7 @@ def detect_chars(text, regex_pattern):
 
     try:
         for pattern in regex_pattern:
-            char_pattern = re.compile(pattern)            
+            char_pattern = re.compile(pattern)
             match = char_pattern.search(text)
             if match:
                 return {
@@ -87,16 +104,19 @@ def detect_chars(text, regex_pattern):
                     "detected": False,
                     "char": None
                 }
-        
+
     except Exception as e:
         logging.error(f"Invalid regex pattern: {e}")
         sys.exit(1)
 
+
 def main(args, changed_files):
     load_dotenv('.env')
     auth_token = os.getenv('AUTH_TOKEN')
-    if auth_token == '' or auth_token is None:
-        raise ValueError("Wrong or not specified value for AUTH_TOKEN environment variable!")
+    if not auth_token:
+        raise ValueError(
+            "Wrong or not specified value for AUTH_TOKEN environment variable!"
+        )
 
     file_extensions = args.image_file_extensions
     num_processes = args.processes
@@ -131,20 +151,33 @@ def main(args, changed_files):
     for entry in results:
         if entry["status"] == "failure":
             continue
+
         words_blocks = entry["response"]["result"]["words_block_list"]
+
         for block in words_blocks:
             chinese_result = detect_chars(block["words"], regex_pattern=regex_pattern)
+
             if chinese_result["detected"]:
-                if block["confidence"] < float(args.confidence):
-                    logging.warning(f"Detected Chinese character {chinese_result['char']} in file {entry['data']} with low confidence of {block['confidence']}.")
+                confidence = block["confidence"]
+                detected_char = chinese_result["char"]
+                file_name = entry["data"]
+
+                if confidence < float(args.confidence):
+                    warning_msg = (
+                        f"Detected Chinese character {detected_char} in file {file_name} "
+                        f"with low confidence of {confidence}."
+                    )
+                    logging.warning(warning_msg)
                 else:
-                    images_with_chinese.append({
-                        "file": entry["data"],
-                        "confidence": block["confidence"],
-                        "detected_char": chinese_result["char"],
-                        "detected": True,
-                        "status": entry["status"]
-                    })
+                    images_with_chinese.append(
+                        {
+                            "file": file_name,
+                            "confidence": confidence,
+                            "detected_char": detected_char,
+                            "detected": True,
+                            "status": entry["status"],
+                        }
+                    )
                 break
 
     if images_with_chinese == []:
@@ -157,5 +190,5 @@ def main(args, changed_files):
             "detected": True,
             "files": images_with_chinese
         }
-    
+
     return detect_dict
