@@ -155,7 +155,9 @@ def main(args, changed_files):
         words_blocks = entry["response"]["result"]["words_block_list"]
 
         for block in words_blocks:
-            chinese_result = detect_chars(block["words"], regex_pattern=regex_pattern)
+            chinese_result = detect_chars(
+                block["words"], regex_pattern=regex_pattern
+            )
 
             if chinese_result["detected"]:
                 confidence = block["confidence"]
