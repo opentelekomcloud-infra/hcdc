@@ -19,6 +19,8 @@ from src.image_processing import main as image_processing
 from src.text_processing import main as text_processing
 import json
 
+ocr = "https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text"
+
 
 def get_parser():
     # Format the output of help
@@ -52,12 +54,18 @@ def get_parser():
              'Default: .jpg .png .jpeg .gif .webp .avif'
     )
     parser.add_argument(
-        '--text-file-extensions',
-        metavar='<file-extensions>',
-        default=['.txt', '.md', '.rst', '.ini', '.cfg', '.json', '.xml', '.yml', '.yaml', '.py', '.html', '.htm'],
-        nargs='+',
-        help='Text file extensions which should be checked.'
-             'Default: .txt .md .rst .ini .cfg. json .xml .yml .yaml .py'
+        "--text-file-extensions",
+        metavar="<file-extensions>",
+        default=[
+            ".txt", ".md", ".rst", ".ini", ".cfg", ".json",
+            ".xml", ".yml", ".yaml", ".py", ".html", ".htm"
+        ],
+        nargs="+",
+        help=(
+            "Text file extensions which should be checked.\n"
+            "Default: .txt .md .rst .ini .cfg .json .xml \n"
+            ".yml .yaml .py .html .htm"
+        ),
     )
     parser.add_argument(
         '--branch',
@@ -76,17 +84,27 @@ def get_parser():
     parser.add_argument(
         '--ocr-url',
         metavar='<ocr-url>',
-        default="https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text",
-        help='URL for OCR Service.'
-             ' Default: https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text'
+        default=ocr,
+        help=(
+            f"URL for OCR Service.\n"
+            f"Default: {ocr}"
+        )
     )
     parser.add_argument(
-        '--regex-pattern',
-        metavar='<regex-pattern>',
-        default=[r'(?![\u4e09\u767d\u76ee\u4e09\u8279\u53e3\u533a\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+'],
-        nargs='+',
-        help='Regex pattern to check for unwanted characters.'
-             'Default: ' + (r'(?![\u4e09\u767d\u76ee\u4e09\u8279\u53e3\u533a\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+')
+        "--regex-pattern",
+        metavar="<regex-pattern>",
+        default=[
+            (
+                r"(?![\u4e09\u767d\u76ee\u4e09\u8279\u53e3\u533a\u4e2a\u516b\u4e00\u4eba])"
+                r"[\u4e01-\u9fff]+"
+            )
+        ],
+        nargs="+",
+        help=(
+            "Regex pattern to check for unwanted characters. "
+            "Default: "
+            r"(?![\u4e09\u767d\u76ee\u4e09\u8279\u53e3\u533a\u4e2a\u516b\u4e00\u4eba])[\u4e01-\u9fff]+"
+        ),
     )
     parser.add_argument(
         '--confidence',
@@ -98,6 +116,7 @@ def get_parser():
     args = parser.parse_args()
     return args
 
+
 def get_changed_files(repo_path, branch, main_branch):
     repo = git.Repo(repo_path)
 
@@ -107,13 +126,15 @@ def get_changed_files(repo_path, branch, main_branch):
     # Fetch the main branch to ensure we have the latest changes
     repo.remotes.origin.fetch(main_branch)
 
-    # Get the diff between the main branch and the specified branch, only changed and new files
+    # Get the diff between the main branch and the specified branch,
+    # only changed and new files
     diff = repo.git.diff(main_branch, branch, name_only=True, diff_filter='AM')
-    
+
     # Split the output by lines
     changed_files = diff.splitlines()
 
     return changed_files
+
 
 def main():
 
@@ -124,18 +145,18 @@ def main():
     else:
         logging.basicConfig(level=logging.INFO)
 
-    changed_files=get_changed_files(
+    changed_files = get_changed_files(
         args.repo_path,
         args.branch,
         args.main_branch
     )
-    
-    output_images = image_processing (
+
+    output_images = image_processing(
         args=args,
         changed_files=changed_files
     )
 
-    output_text = text_processing (
+    output_text = text_processing(
         args=args,
         changed_files=changed_files
     )

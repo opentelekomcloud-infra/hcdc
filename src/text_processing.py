@@ -17,37 +17,42 @@
 
 import logging
 from multiprocessing import Pool
-import shutil
-import git
+# import shutil
+# import git
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from functools import partial
-import base64
+# import base64
 import json
 import re
 import sys
 
+
 def get_changed_text_files(changed_files, file_extensions):
-    text_files = [file for file in changed_files if os.path.splitext(file)[1] in file_extensions]
+    text_files = [
+        file for file in changed_files
+        if os.path.splitext(file)[1] in file_extensions
+    ]
     return text_files
+
 
 def analyze_text(data, regex_pattern):
     try:
         with open(data, 'r') as file:
             file_contents = file.read()
-        
+
         result = detect_chars(file_contents, regex_pattern)
 
         if result["detected"]:
             return {
-                "file": data, 
+                "file": data,
                 "matches": result["matches"],
                 "detected": True,
                 "status": "success"
             }
         else:
             return {
-                "file": data, 
+                "file": data,
                 "matches": [],
                 "detected": False,
                 "status": "success"
@@ -55,9 +60,10 @@ def analyze_text(data, regex_pattern):
     except Exception as e:
         logging.error(f"Failed to analyze textfile {data}: {e}")
         return {
-            "file": data, 
+            "file": data,
             "status": "failure"
         }
+
 
 def process_textfiles(textfile_list, num_processes, regex_pattern):
     num_processes = max(1, int(num_processes))
@@ -66,14 +72,15 @@ def process_textfiles(textfile_list, num_processes, regex_pattern):
         results = pool.map(analyze_text_args, textfile_list)
     return results
 
+
 def detect_chars(text, regex_pattern):
     res = {
-            "detected": False,
-            "matches": [],
-        }
+        "detected": False,
+        "matches": [],
+    }
     try:
         for pattern in regex_pattern:
-            char_pattern = re.compile(pattern)            
+            char_pattern = re.compile(pattern)
             lines = text.splitlines()
             for line_num, line in enumerate(lines, 1):
                 matches = char_pattern.findall(line)
@@ -83,14 +90,15 @@ def detect_chars(text, regex_pattern):
                         "line": line_num
                     }
                     res["matches"].append(match_info)
-            
+
             if res["matches"]:
                 res["detected"] = True
-        
+
     except Exception as e:
         logging.error(f"Invalid regex pattern: {e}")
         sys.exit(1)
     return res
+
 
 def main(args, changed_files):
     file_extensions = args.text_file_extensions
@@ -119,5 +127,5 @@ def main(args, changed_files):
         "detected": bool(text_with_chinese),
         "files": text_with_chinese
     }
-    
+
     return detect_dict

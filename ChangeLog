@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+* fix e501
+* Refactor code style and improve readability across multiple files
+* fix tox
+* dummy change
+* Add Readme
 * Add confidence value to args and fix regex
 * Fix issues
 * Fix issues
