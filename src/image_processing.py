@@ -166,7 +166,8 @@ def main(args, changed_files):
 
                 if confidence < float(args.confidence):
                     warning_msg = (
-                        f"Detected Chinese character {detected_char} in file {file_name} "
+                        f"Detected Chinese character {detected_char} "
+                        f"in file {file_name} "
                         f"with low confidence of {confidence}."
                     )
                     logging.warning(warning_msg)

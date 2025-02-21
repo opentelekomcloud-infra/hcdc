@@ -19,6 +19,8 @@ from src.image_processing import main as image_processing
 from src.text_processing import main as text_processing
 import json
 
+ocr = "https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text"
+
 
 def get_parser():
     # Format the output of help
@@ -60,8 +62,9 @@ def get_parser():
         ],
         nargs="+",
         help=(
-            "Text file extensions which should be checked. "
-            "Default: .txt .md .rst .ini .cfg .json .xml .yml .yaml .py .html .htm"
+            "Text file extensions which should be checked.\n"
+            "Default: .txt .md .rst .ini .cfg .json .xml \n"
+            ".yml .yaml .py .html .htm"
         ),
     )
     parser.add_argument(
@@ -81,9 +84,11 @@ def get_parser():
     parser.add_argument(
         '--ocr-url',
         metavar='<ocr-url>',
-        default="https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text",
-        help='URL for OCR Service.'
-        ' Default: https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text'
+        default=ocr,
+        help=(
+            f"URL for OCR Service.\n"
+            f"Default: {ocr}"
+        )
     )
     parser.add_argument(
         "--regex-pattern",
