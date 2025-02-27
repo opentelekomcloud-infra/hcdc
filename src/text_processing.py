@@ -15,22 +15,19 @@
 # The provided script analyzes text files to detect the presence of
 # Chinese characters and processes them using multiprocessing.
 
-import logging
-from multiprocessing import Pool
-# import shutil
-# import git
-import os
-# from dotenv import load_dotenv
-from functools import partial
-# import base64
 import json
+import logging
+import os
 import re
 import sys
+from functools import partial
+from multiprocessing import Pool
 
 
 def get_changed_text_files(changed_files, file_extensions):
     text_files = [
-        file for file in changed_files
+        file
+        for file in changed_files
         if os.path.splitext(file)[1] in file_extensions
     ]
     return text_files
@@ -38,7 +35,7 @@ def get_changed_text_files(changed_files, file_extensions):
 
 def analyze_text(data, regex_pattern):
     try:
-        with open(data, 'r') as file:
+        with open(data, "r") as file:
             file_contents = file.read()
 
         result = detect_chars(file_contents, regex_pattern)
@@ -48,21 +45,18 @@ def analyze_text(data, regex_pattern):
                 "file": data,
                 "matches": result["matches"],
                 "detected": True,
-                "status": "success"
+                "status": "success",
             }
         else:
             return {
                 "file": data,
                 "matches": [],
                 "detected": False,
-                "status": "success"
+                "status": "success",
             }
     except Exception as e:
         logging.error(f"Failed to analyze textfile {data}: {e}")
-        return {
-            "file": data,
-            "status": "failure"
-        }
+        return {"file": data, "status": "failure"}
 
 
 def process_textfiles(textfile_list, num_processes, regex_pattern):
@@ -85,10 +79,7 @@ def detect_chars(text, regex_pattern):
             for line_num, line in enumerate(lines, 1):
                 matches = char_pattern.findall(line)
                 for match in matches:
-                    match_info = {
-                        "text": match,
-                        "line": line_num
-                    }
+                    match_info = {"text": match, "line": line_num}
                     res["matches"].append(match_info)
 
             if res["matches"]:
@@ -108,8 +99,7 @@ def main(args, changed_files):
     logging.info("Starting to analyze changed textfiles...")
 
     textfile_list = get_changed_text_files(
-        changed_files=changed_files,
-        file_extensions=file_extensions
+        changed_files=changed_files, file_extensions=file_extensions
     )
 
     results = process_textfiles(
@@ -125,7 +115,7 @@ def main(args, changed_files):
 
     detect_dict = {
         "detected": bool(text_with_chinese),
-        "files": text_with_chinese
+        "files": text_with_chinese,
     }
 
     return detect_dict

@@ -9,6 +9,6 @@ Modifying ECS Specifications
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    general_operations

@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import argparse
+import json
+import logging
+
 import git
+
 from src.image_processing import main as image_processing
 from src.text_processing import main as text_processing
-import json
 
 ocr = "https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text"
 
@@ -25,40 +27,47 @@ ocr = "https://ocr.eu-de.otc.t-systems.com/v2/project-id/ocr/general-text"
 def get_parser():
     # Format the output of help
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument(
-        '--debug',
-        action='store_true',
-        help=' Option enables Debug output.'
+        formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument(
-        '--processes',
-        metavar='<processes>',
+        "--debug", action="store_true", help=" Option enables Debug output."
+    )
+    parser.add_argument(
+        "--processes",
+        metavar="<processes>",
         default=4,
-        help='Number of processes for minification.'
-             ' Default: 4'
+        help="Number of processes for minification. Default: 4",
     )
     parser.add_argument(
-        '--repo-path',
-        metavar='<repo-path>',
+        "--repo-path",
+        metavar="<repo-path>",
         default=".",
-        help='Path to git repository.'
-             ' Default: .'
+        help="Path to git repository. Default: .",
     )
     parser.add_argument(
-        '--image-file-extensions',
-        metavar='<file-extensions>',
-        default=['.jpg', '.png', '.jpeg', '.gif', '.tiff', '.bmp'],
-        nargs='+',
-        help='Image file extensions which should be checked.'
-             'Default: .jpg .png .jpeg .gif .tiff .bmp'
+        "--image-file-extensions",
+        metavar="<file-extensions>",
+        default=[".jpg", ".png", ".jpeg", ".gif", ".tiff", ".bmp"],
+        nargs="+",
+        help="Image file extensions which should be checked."
+        "Default: .jpg .png .jpeg .gif .tiff .bmp",
     )
     parser.add_argument(
         "--text-file-extensions",
         metavar="<file-extensions>",
         default=[
-            ".txt", ".md", ".rst", ".ini", ".cfg", ".json",
-            ".xml", ".yml", ".yaml", ".py", ".html", ".htm"
+            ".txt",
+            ".md",
+            ".rst",
+            ".ini",
+            ".cfg",
+            ".json",
+            ".xml",
+            ".yml",
+            ".yaml",
+            ".py",
+            ".html",
+            ".htm",
         ],
         nargs="+",
         help=(
@@ -68,27 +77,22 @@ def get_parser():
         ),
     )
     parser.add_argument(
-        '--branch',
-        metavar='<branch>',
+        "--branch",
+        metavar="<branch>",
         default="umn",
-        help='Branch to compare against main branch.'
-             ' Default: umn'
+        help="Branch to compare against main branch. Default: umn",
     )
     parser.add_argument(
-        '--main-branch',
-        metavar='<main-branch>',
+        "--main-branch",
+        metavar="<main-branch>",
         default="main",
-        help='Name of the main branch.'
-             ' Default: main'
+        help="Name of the main branch. Default: main",
     )
     parser.add_argument(
-        '--ocr-url',
-        metavar='<ocr-url>',
+        "--ocr-url",
+        metavar="<ocr-url>",
         default=ocr,
-        help=(
-            f"URL for OCR Service.\n"
-            f"Default: {ocr}"
-        )
+        help=(f"URL for OCR Service.\nDefault: {ocr}"),
     )
     parser.add_argument(
         "--regex-pattern",
@@ -108,11 +112,10 @@ def get_parser():
         ),
     )
     parser.add_argument(
-        '--confidence',
-        metavar='<processes>',
+        "--confidence",
+        metavar="<processes>",
         default=0.97,
-        help='Confidence for image recognition.'
-             ' Default: 0.97'
+        help="Confidence for image recognition. Default: 0.97",
     )
     args = parser.parse_args()
     return args
@@ -129,7 +132,7 @@ def get_changed_files(repo_path, branch, main_branch):
 
     # Get the diff between the main branch and the specified branch,
     # only changed and new files
-    diff = repo.git.diff(main_branch, branch, name_only=True, diff_filter='AM')
+    diff = repo.git.diff(main_branch, branch, name_only=True, diff_filter="AM")
 
     # Split the output by lines
     changed_files = diff.splitlines()
@@ -138,7 +141,6 @@ def get_changed_files(repo_path, branch, main_branch):
 
 
 def main():
-
     args = get_parser()
 
     if args.debug:
@@ -147,22 +149,11 @@ def main():
         logging.basicConfig(level=logging.INFO)
 
     changed_files = get_changed_files(
-        args.repo_path,
-        args.branch,
-        args.main_branch
+        args.repo_path, args.branch, args.main_branch
     )
 
-    output_images = image_processing(
-        args=args,
-        changed_files=changed_files
-    )
+    output_images = image_processing(args=args, changed_files=changed_files)
 
-    output_text = text_processing(
-        args=args,
-        changed_files=changed_files
-    )
+    output_text = text_processing(args=args, changed_files=changed_files)
 
-    return json.dumps({
-        "images": output_images,
-        "text": output_text
-    })
+    return json.dumps({"images": output_images, "text": output_text})

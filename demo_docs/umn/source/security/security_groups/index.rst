@@ -13,7 +13,7 @@ Security Groups
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    overview
    default_security_group_and_rules

@@ -14,7 +14,7 @@ ECS Management
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    how_can_a_changed_static_hostname_take_effect_permanently
    is_an_ecs_hostname_with_suffix_.novalocal_normal

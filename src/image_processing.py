@@ -12,23 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-from multiprocessing import Pool
-# import shutil
-import os
-from dotenv import load_dotenv
-import requests
-from functools import partial
 import base64
 import json
+import logging
+import os
 import re
 import sys
+from multiprocessing import Pool
+
+import requests
+from dotenv import load_dotenv
 
 
 def get_changed_image_files(changed_files, file_extensions):
     # Filter files by the given extensions
     image_files = [
-        file for file in changed_files
+        file
+        for file in changed_files
         if any(file.endswith(ext) for ext in file_extensions)
     ]
     return image_files
@@ -43,7 +43,7 @@ def encode_image_to_base64(image_path):
             # Encode the image data to Base64
             base64_encoded_data = base64.b64encode(image_data)
             # Convert the Base64 bytes to a string
-            base64_string = base64_encoded_data.decode('utf-8')
+            base64_string = base64_encoded_data.decode("utf-8")
         return base64_string
     except Exception as e:
         logging.error(f"Failed to analyze image {image_path}: {e}")
@@ -58,21 +58,21 @@ def post_request(data, url, headers):
         final_json = {
             "image": image_base64,
             "detect_direction": False,
-            "quick_mode": False
+            "quick_mode": False,
         }
         response = requests.post(url, json=final_json, headers=headers)
         if response.status_code == 200:
             return {
                 "data": data,
                 "status": "success",
-                "response": response.json()
+                "response": response.json(),
             }
         else:
             return {
                 "data": data,
                 "status": "failure",
                 "status_code": response.status_code,
-                "response": response.text
+                "response": response.text,
             }
     except requests.exceptions.RequestException as e:
         return {"data": data, "status": "error", "error": str(e)}
@@ -82,28 +82,20 @@ def process_images(image_list, url, num_processes, headers):
     num_processes = int(num_processes)
     with Pool(num_processes) as pool:
         results = pool.map(
-            partial(post_request, url=url, headers=headers),
-            image_list
+            partial(post_request, url=url, headers=headers), image_list
         )
     return results
 
 
 def detect_chars(text, regex_pattern):
-
     try:
         for pattern in regex_pattern:
             char_pattern = re.compile(pattern)
             match = char_pattern.search(text)
             if match:
-                return {
-                    "detected": True,
-                    "char": match.group(0)
-                }
+                return {"detected": True, "char": match.group(0)}
             else:
-                return {
-                    "detected": False,
-                    "char": None
-                }
+                return {"detected": False, "char": None}
 
     except Exception as e:
         logging.error(f"Invalid regex pattern: {e}")
@@ -111,8 +103,8 @@ def detect_chars(text, regex_pattern):
 
 
 def main(args, changed_files):
-    load_dotenv('.env')
-    auth_token = os.getenv('AUTH_TOKEN')
+    load_dotenv(".env")
+    auth_token = os.getenv("AUTH_TOKEN")
     if not auth_token:
         raise ValueError(
             "Wrong or not specified value for AUTH_TOKEN environment variable!"
@@ -126,22 +118,18 @@ def main(args, changed_files):
     logging.info("Starting to analyze changed images...")
 
     image_files = get_changed_image_files(
-        changed_files=changed_files,
-        file_extensions=file_extensions
+        changed_files=changed_files, file_extensions=file_extensions
     )
 
     logging.info("Changed images:" + str(image_files))
 
-    headers = {
-        "X-Auth-Token": auth_token,
-        "Content-Type": "application/json"
-    }
+    headers = {"X-Auth-Token": auth_token, "Content-Type": "application/json"}
 
     results = process_images(
         image_list=image_files,
         url=ocr_url,
         num_processes=num_processes,
-        headers=headers
+        headers=headers,
     )
 
     logging.debug(image_files)
@@ -184,14 +172,8 @@ def main(args, changed_files):
                 break
 
     if images_with_chinese == []:
-        detect_dict = {
-            "detected": False,
-            "files": images_with_chinese
-        }
+        detect_dict = {"detected": False, "files": images_with_chinese}
     else:
-        detect_dict = {
-            "detected": True,
-            "files": images_with_chinese
-        }
+        detect_dict = {"detected": True, "files": images_with_chinese}
 
     return detect_dict
