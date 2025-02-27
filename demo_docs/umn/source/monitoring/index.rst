@@ -12,7 +12,7 @@ Monitoring
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    monitoring_ecss
    basic_ecs_metrics

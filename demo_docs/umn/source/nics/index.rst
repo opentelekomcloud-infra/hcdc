@@ -14,7 +14,7 @@ NICs
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    adding_a_network_interface
    deleting_a_network_interface

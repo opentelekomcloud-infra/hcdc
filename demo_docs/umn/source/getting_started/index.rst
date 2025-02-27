@@ -11,7 +11,7 @@ Getting Started
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    creating_an_ecs/index
    logging_in_to_an_ecs

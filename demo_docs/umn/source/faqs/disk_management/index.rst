@@ -28,7 +28,7 @@ Disk Management
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    why_cant_i_find_my_newly_purchased_data_disk_after_i_log_in_to_my_windows_ecs
    how_can_i_adjust_system_disk_partitions

@@ -12,7 +12,7 @@ Passwords
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    application_scenarios_for_using_passwords
    changing_the_login_password_on_an_ecs

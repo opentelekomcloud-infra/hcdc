@@ -9,6 +9,6 @@ Security
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    security_groups/index

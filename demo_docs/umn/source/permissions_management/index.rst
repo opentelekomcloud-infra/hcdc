@@ -10,7 +10,7 @@ Permissions Management
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    creating_a_user_and_granting_ecs_permissions
    ecs_custom_policies

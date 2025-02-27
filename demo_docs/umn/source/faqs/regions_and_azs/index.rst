@@ -10,7 +10,7 @@ Regions and AZs
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    what_is_an_az
    is_data_transmission_between_azs_billed

@@ -17,7 +17,7 @@ ECS Specifications and Types
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    a_summary_list_of_ecs_specifications
    general-purpose_ecss

@@ -12,7 +12,7 @@ Tag Management
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    overview
    adding_tags

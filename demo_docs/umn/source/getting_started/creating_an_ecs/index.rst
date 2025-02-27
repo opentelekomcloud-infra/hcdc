@@ -13,7 +13,7 @@ Creating an ECS
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    overview
    step_1_configure_basic_settings

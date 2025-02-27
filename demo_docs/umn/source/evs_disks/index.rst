@@ -13,7 +13,7 @@ EVS Disks
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    overview
    attaching_an_evs_disk_to_an_ecs

@@ -11,7 +11,7 @@ ECS Overview
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    what_are_the_precautions_for_using_ecss
    what_can_i_do_with_ecss

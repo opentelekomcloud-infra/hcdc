@@ -20,7 +20,7 @@ Creation and Deletion
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    what_should_i_do_if_the_ecs_resources_to_be_purchased_are_sold_out
    what_is_the_creation_time_and_startup_time_of_an_ecs

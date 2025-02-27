@@ -22,7 +22,7 @@ FAQs
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    ecs_overview/index
    regions_and_azs/index

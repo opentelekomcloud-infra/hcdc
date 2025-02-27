@@ -27,7 +27,7 @@ Network Configurations
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    can_multiple_eips_be_bound_to_an_ecs
    can_an_ecs_without_an_eip_bound_access_the_internet

@@ -19,7 +19,7 @@ OS Management
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    can_i_install_or_upgrade_the_os_of_an_ecs
    can_i_change_the_os_of_an_ecs

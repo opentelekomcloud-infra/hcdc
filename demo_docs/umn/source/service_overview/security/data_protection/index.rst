@@ -9,6 +9,6 @@ Data Protection
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    user_encryption

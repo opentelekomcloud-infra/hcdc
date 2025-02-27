@@ -10,7 +10,7 @@ Resources and Tags
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    tag_management/index
    quota_adjustment

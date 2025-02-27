@@ -12,7 +12,7 @@
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    gpu_driver
    installing_a_grid_driver_on_a_gpu-accelerated_ecs
