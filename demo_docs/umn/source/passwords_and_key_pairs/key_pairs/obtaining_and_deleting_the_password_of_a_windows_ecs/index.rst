@@ -10,7 +10,7 @@ Obtaining and Deleting the Password of a Windows ECS
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    obtaining_the_password_for_logging_in_to_a_windows_ecs
    deleting_the_initial_password_for_logging_in_to_a_windows_ecs

@@ -10,7 +10,7 @@ Backup Using CBR
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    overview
    backing_up_an_ecs_data

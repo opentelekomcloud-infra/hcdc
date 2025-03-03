@@ -10,7 +10,7 @@ Obtaining Metadata and Passing User Data
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    obtaining_metadata
    passing_user_data_to_ecss
