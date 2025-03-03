@@ -20,7 +20,7 @@ File Upload/Data Transfer
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    how_do_i_upload_files_to_my_ecs
    how_can_i_transfer_files_from_a_local_windows_computer_to_a_windows_ecs

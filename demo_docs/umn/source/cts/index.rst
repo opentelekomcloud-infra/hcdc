@@ -10,7 +10,7 @@ CTS
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    key_operations_supported_by_cts
    viewing_audit_logs

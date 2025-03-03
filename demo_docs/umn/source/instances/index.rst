@@ -17,7 +17,7 @@ Instances
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    viewing_ecs_information/index
    logging_in_to_a_windows_ecs/index

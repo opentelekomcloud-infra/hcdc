@@ -11,7 +11,7 @@ Instances
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    ecs_overview
    ecs_lifecycle

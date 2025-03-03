@@ -12,7 +12,7 @@ Viewing ECS Information
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    viewing_ecs_creation_statuses
    viewing_failed_tasks

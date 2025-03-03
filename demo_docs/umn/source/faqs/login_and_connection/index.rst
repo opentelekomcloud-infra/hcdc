@@ -41,7 +41,7 @@ Login and Connection
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    why_are_characters_entered_through_vnc_still_incorrect_after_the_keyboard_language_is_switched
    what_should_i_do_if_i_cannot_use_the_german_keyboard_to_enter_characters_when_i_log_in_to_a_linux_ecs_using_vnc

@@ -15,7 +15,7 @@ Managing ECSs
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    changing_ecs_names
    reinstalling_the_os

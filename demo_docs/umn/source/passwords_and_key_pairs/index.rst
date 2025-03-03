@@ -10,7 +10,7 @@ Passwords and Key Pairs
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    passwords/index
    key_pairs/index

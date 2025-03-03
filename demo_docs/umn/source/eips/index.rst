@@ -13,7 +13,7 @@ EIPs
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    overview
    binding_an_eip

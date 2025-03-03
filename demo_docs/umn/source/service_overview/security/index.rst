@@ -11,7 +11,7 @@ Security
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    data_protection/index
    license_types

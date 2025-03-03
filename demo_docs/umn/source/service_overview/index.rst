@@ -19,7 +19,7 @@ Service Overview
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    what_is_ecs
    ecs_and_other_services

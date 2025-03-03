@@ -13,7 +13,7 @@ Key Pairs
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    application_scenarios_for_using_key_pairs
    recommended_creating_a_key_pair_on_the_management_console

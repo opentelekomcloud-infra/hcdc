@@ -10,7 +10,7 @@ Images
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    image_types
    cloud-init

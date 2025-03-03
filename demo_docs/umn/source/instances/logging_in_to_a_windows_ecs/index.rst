@@ -12,7 +12,7 @@ Logging In to a Windows ECS
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    login_overview
    login_using_vnc

@@ -17,7 +17,7 @@ Passwords and Key Pairs
 
 .. toctree::
    :maxdepth: 1
-   :hidden: 
+   :hidden:
 
    how_can_i_set_the_validity_period_of_the_image_password
    how_can_i_obtain_the_key_pair_used_by_my_ecs

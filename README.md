@@ -44,4 +44,3 @@ You can use a custom regex pattern to check for unwanted characters in the files
 ## Authentication
 
 To use this tool, ensure that you specify an `AUTH_TOKEN` to access the OCR service. For details on obtaining a token, refer to the official [T-Systems Documentation](https://docs.otc.t-systems.com/optical-character-recognition/umn/getting_started.html#step-3-using-a-token-for-authentication).
-
