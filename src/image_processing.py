@@ -164,12 +164,13 @@ def main(args, changed_files):
                     )
                     logging.warning(warning_msg)
                 else:
-                    detect_status = True
-                    detected_character_list.append(
-                        {
-                            "text": detected_chars
-                        }
-                    )
+                    if len(detected_chars) > 2:
+                        detect_status = True
+                        detected_character_list.append(
+                            {
+                                "text": detected_chars
+                            }
+                        )
         if detect_status is True:
             images_with_chinese.append(
                 {
