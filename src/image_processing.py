@@ -116,6 +116,7 @@ def main(args, changed_files):
     num_processes = args.processes
     ocr_url = args.ocr_url
     regex_pattern = args.regex_pattern
+    min_char_count = args.min_char_count
 
     logging.info("Starting to analyze changed images...")
 
@@ -164,7 +165,7 @@ def main(args, changed_files):
                     )
                     logging.warning(warning_msg)
                 else:
-                    if len(detected_chars) > 2:
+                    if len(detected_chars) >= min_char_count:
                         detect_status = True
                         detected_character_list.append(
                             {

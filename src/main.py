@@ -117,6 +117,12 @@ def get_parser():
         default=0.97,
         help="Confidence for image recognition. Default: 0.97",
     )
+    parser.add_argument(
+        "--min-char-count",
+        metavar="<min-char-count>",
+        default=2,
+        help="Minimum character amount of a detected word in an image to be considered as match. Default: 2",
+    )
     args = parser.parse_args()
     return args
 
