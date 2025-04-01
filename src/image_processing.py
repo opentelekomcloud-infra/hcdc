@@ -93,14 +93,14 @@ def detect_chars(text, regex_pattern):
     try:
         for pattern in regex_pattern:
             char_pattern = re.compile(pattern)
-            match = char_pattern.search(text)
-            if match:
-                print(match.groups())
-                for textresult in match.groups():
+            matches = char_pattern.findall(text)
+            if matches:
+                print(matches)
+                for textresult in matches:
                     print(textresult)
                     if len(textresult) > 1:
                         print("detected chinese chars " + textresult + " with length of " + str(len(textresult)))
-                return {"detected": True, "char": match.group(0)}
+                return {"detected": True, "char": matches[0]}
             else:
                 return {"detected": False, "char": None}
 
