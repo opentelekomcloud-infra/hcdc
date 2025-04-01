@@ -93,7 +93,7 @@ def detect_chars(text, regex_pattern):
         for pattern in regex_pattern:
             char_pattern = re.compile(pattern)
             match = char_pattern.search(text)
-            print(match)
+            print(len(match))
             if match:
                 return {"detected": True, "char": match.group(0)}
             else:
