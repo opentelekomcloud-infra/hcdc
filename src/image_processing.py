@@ -89,12 +89,15 @@ def process_images(image_list, url, num_processes, headers):
 
 
 def detect_chars(text, regex_pattern):
+    detect_chars_result = ""
     try:
         for pattern in regex_pattern:
             char_pattern = re.compile(pattern)
             match = char_pattern.search(text)
             if match:
-                print(len(match.group(0)))
+                for textresult in match.groups():
+                    if len(textresult) > 1:
+                        print("detected chinese chars " + textresult + " with length of " + str(len(textresult)))
                 return {"detected": True, "char": match.group(0)}
             else:
                 return {"detected": False, "char": None}
