@@ -175,7 +175,7 @@ def main(args, changed_files):
                 {
                     "file": file_name,
                     "confidence": confidence,
-                    "matches": detected_chars,
+                    "matches": detected_character_list,
                     "detected": True,
                     "status": entry["status"],
                 }
