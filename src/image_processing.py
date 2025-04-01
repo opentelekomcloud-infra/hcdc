@@ -95,12 +95,7 @@ def detect_chars(text, regex_pattern):
             char_pattern = re.compile(pattern)
             matches = char_pattern.findall(text)
             if matches:
-                print(matches)
-                for textresult in matches:
-                    print(textresult)
-                    if len(textresult) > 1:
-                        print("detected chinese chars " + textresult + " with length of " + str(len(textresult)))
-                return {"detected": True, "char": matches[0]}
+                return {"detected": True, "char": matches.}
             else:
                 return {"detected": False, "char": None}
 
@@ -148,6 +143,8 @@ def main(args, changed_files):
             continue
 
         words_blocks = entry["response"]["result"]["words_block_list"]
+        detected_character_list =[]
+        detect_status = False
 
         for block in words_blocks:
             chinese_result = detect_chars(
@@ -156,27 +153,33 @@ def main(args, changed_files):
 
             if chinese_result["detected"]:
                 confidence = block["confidence"]
-                detected_char = chinese_result["char"]
+                detected_chars = chinese_result["char"]
                 file_name = entry["data"]
 
                 if confidence < float(args.confidence):
                     warning_msg = (
-                        f"Detected Chinese character {detected_char} "
+                        f"Detected Chinese character {detected_chars} "
                         f"in file {file_name} "
                         f"with low confidence of {confidence}."
                     )
                     logging.warning(warning_msg)
                 else:
-                    images_with_chinese.append(
+                    detect_status = True
+                    detected_character_list.append(
                         {
-                            "file": file_name,
-                            "confidence": confidence,
-                            "detected_char": detected_char,
-                            "detected": True,
-                            "status": entry["status"],
+                            "text": detected_chars
                         }
                     )
-                break
+        if detect_status is True:
+            images_with_chinese.append(
+                {
+                    "file": file_name,
+                    "confidence": confidence,
+                    "matches": detected_chars,
+                    "detected": True,
+                    "status": entry["status"],
+                }
+            )
 
     if images_with_chinese == []:
         detect_dict = {"detected": False, "files": images_with_chinese}
