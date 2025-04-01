@@ -95,6 +95,7 @@ def detect_chars(text, regex_pattern):
             char_pattern = re.compile(pattern)
             match = char_pattern.search(text)
             if match:
+                print(match.groups())
                 for textresult in match.groups():
                     print(textresult)
                     if len(textresult) > 1:
