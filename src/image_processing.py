@@ -93,9 +93,9 @@ def detect_chars(text, regex_pattern):
     try:
         for pattern in regex_pattern:
             char_pattern = re.compile(pattern)
-            matches = char_pattern.findall(text)
-            if matches:
-                return {"detected": True, "char": matches.}
+            match = char_pattern.search(text)
+            if match:
+                return {"detected": True, "char": match.group(0)}
             else:
                 return {"detected": False, "char": None}
 
