@@ -169,14 +169,14 @@ def main(args, changed_files):
                         detect_status = True
                         detected_character_list.append(
                             {
-                                "text": detected_chars
+                                "text": detected_chars,
+                                "confidence": confidence
                             }
                         )
         if detect_status is True:
             images_with_chinese.append(
                 {
                     "file": file_name,
-                    "confidence": confidence,
                     "matches": detected_character_list,
                     "detected": True,
                     "status": entry["status"],
