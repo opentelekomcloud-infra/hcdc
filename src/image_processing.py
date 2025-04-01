@@ -96,6 +96,7 @@ def detect_chars(text, regex_pattern):
             match = char_pattern.search(text)
             if match:
                 for textresult in match.groups():
+                    print(textresult)
                     if len(textresult) > 1:
                         print("detected chinese chars " + textresult + " with length of " + str(len(textresult)))
                 return {"detected": True, "char": match.group(0)}
