@@ -121,7 +121,8 @@ def get_parser():
         "--min-char-count",
         metavar="<min-char-count>",
         default=2,
-        help="Minimum character amount of a detected word in an image to be considered as match. Default: 2",
+        help="Minimum character amount of a detected word in an image to "
+        "be considered as match. Default: 2",
     )
     args = parser.parse_args()
     return args

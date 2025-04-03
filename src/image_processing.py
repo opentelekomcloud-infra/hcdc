@@ -89,7 +89,6 @@ def process_images(image_list, url, num_processes, headers):
 
 
 def detect_chars(text, regex_pattern):
-    detect_chars_result = ""
     try:
         for pattern in regex_pattern:
             char_pattern = re.compile(pattern)
@@ -144,7 +143,7 @@ def main(args, changed_files):
             continue
 
         words_blocks = entry["response"]["result"]["words_block_list"]
-        detected_character_list =[]
+        detected_character_list = []
         detect_status = False
 
         for block in words_blocks:
@@ -168,10 +167,7 @@ def main(args, changed_files):
                     if len(detected_chars) >= min_char_count:
                         detect_status = True
                         detected_character_list.append(
-                            {
-                                "text": detected_chars,
-                                "confidence": confidence
-                            }
+                            {"text": detected_chars, "confidence": confidence}
                         )
         if detect_status is True:
             images_with_chinese.append(
