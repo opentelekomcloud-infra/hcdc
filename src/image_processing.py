@@ -164,7 +164,7 @@ def main(args, changed_files):
                     )
                     logging.warning(warning_msg)
                 else:
-                    if len(detected_chars) >= min_char_count:
+                    if len(detected_chars) >= int(min_char_count):
                         detect_status = True
                         detected_character_list.append(
                             {"text": detected_chars, "confidence": confidence}
