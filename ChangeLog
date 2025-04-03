@@ -1,22 +1,7 @@
 CHANGES
 =======
 
-* Add char count args
-* fix issue
-* fix issue
-* fix issue
-* added prints
-* added prints
-* added prints
-* added prints
-* added prints
-* added prints
-* added prints
-* added prints
-* added prints
-* added prints
-* added prints
-* added prints
+* Fix false positives (#4)
 * Update README.md (#3)
 * enable zuul builds and refactor code style (#2)
 * Add Readme
