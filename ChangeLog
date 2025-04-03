@@ -1,10 +1,24 @@
 CHANGES
 =======
 
-* fix e501
-* Refactor code style and improve readability across multiple files
-* fix tox
-* dummy change
+* Add char count args
+* fix issue
+* fix issue
+* fix issue
+* added prints
+* added prints
+* added prints
+* added prints
+* added prints
+* added prints
+* added prints
+* added prints
+* added prints
+* added prints
+* added prints
+* added prints
+* Update README.md (#3)
+* enable zuul builds and refactor code style (#2)
 * Add Readme
 * Add confidence value to args and fix regex
 * Fix issues

@@ -115,6 +115,7 @@ def main(args, changed_files):
     num_processes = args.processes
     ocr_url = args.ocr_url
     regex_pattern = args.regex_pattern
+    min_char_count = args.min_char_count
 
     logging.info("Starting to analyze changed images...")
 
@@ -142,6 +143,8 @@ def main(args, changed_files):
             continue
 
         words_blocks = entry["response"]["result"]["words_block_list"]
+        detected_character_list = []
+        detect_status = False
 
         for block in words_blocks:
             chinese_result = detect_chars(
@@ -150,27 +153,31 @@ def main(args, changed_files):
 
             if chinese_result["detected"]:
                 confidence = block["confidence"]
-                detected_char = chinese_result["char"]
+                detected_chars = chinese_result["char"]
                 file_name = entry["data"]
 
                 if confidence < float(args.confidence):
                     warning_msg = (
-                        f"Detected Chinese character {detected_char} "
+                        f"Detected Chinese character {detected_chars} "
                         f"in file {file_name} "
                         f"with low confidence of {confidence}."
                     )
                     logging.warning(warning_msg)
                 else:
-                    images_with_chinese.append(
-                        {
-                            "file": file_name,
-                            "confidence": confidence,
-                            "detected_char": detected_char,
-                            "detected": True,
-                            "status": entry["status"],
-                        }
-                    )
-                break
+                    if len(detected_chars) >= min_char_count:
+                        detect_status = True
+                        detected_character_list.append(
+                            {"text": detected_chars, "confidence": confidence}
+                        )
+        if detect_status is True:
+            images_with_chinese.append(
+                {
+                    "file": file_name,
+                    "matches": detected_character_list,
+                    "detected": True,
+                    "status": entry["status"],
+                }
+            )
 
     if images_with_chinese == []:
         detect_dict = {"detected": False, "files": images_with_chinese}
