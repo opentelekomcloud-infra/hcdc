@@ -99,4 +99,4 @@ jobs:
       - name: Run hcdc
         shell: bash
         run: |
-          hcdc --branch "$PR_BRANCH"
+          hcdc --branch "$PR_BRANCH" --main-branch "origin/$BASE_BRANCH"
