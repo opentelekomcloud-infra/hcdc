@@ -4,7 +4,7 @@ on:
   pull_request:
 
 jobs:
-  get-token:
+  run-hcdc:
     runs-on: ubuntu-latest
     env:
       OS_USERNAME: ${{ secrets.OTC_HCDC_USERNAME }}
@@ -15,6 +15,21 @@ jobs:
       PR_BRANCH: ${{ github.head_ref || github.ref_name }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install hcdc from local source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install .
+
       - name: Request body
         shell: bash
         run: |
@@ -41,51 +56,33 @@ jobs:
           }
           EOF
 
-      - name: Request token (body-only diagnostics)
-        id: token
+      - name: Request token
         shell: bash
         run: |
-            set -euo pipefail
+          set -euo pipefail
 
-            headers=$(mktemp)
-            body=$(mktemp)
-
-            code=$(curl -sS -w "%{http_code}" -o "$body" -D "$headers" \
+          headers=$(mktemp)
+          code=$(curl -sS -w "%{http_code}" -o /dev/null -D "$headers" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json" \
-            --connect-timeout 10 --max-time 30 --retry 3 --retry-all-errors \
             -X POST "https://iam.eu-de.otc.t-systems.com/v3/auth/tokens" \
-            -d @body.json || echo "curl_failed")
+            -d @body.json)
 
-            if [[ "$code" == "curl_failed" ]]; then
-            # No HTTP response body available; emit a minimal message
-            echo "Network error: curl failed before receiving a response body"
+          if [[ "$code" -lt 200 || "$code" -ge 300 ]]; then
+            echo "Request failed"
             exit 1
-            fi
+          fi
 
-            # Success path: do NOT print headers or body
-            if [[ "$code" -ge 200 && "$code" -lt 300 ]]; then
-            TOKEN=$(awk -F': ' 'BEGIN{IGNORECASE=1} /^X-Subject-Token/ {gsub("\r","",$2); print $2}' "$headers" || true)
-            if [[ -z "${TOKEN:-}" ]]; then
-                echo "No X-Subject-Token found"
-                exit 1
-            fi
-            echo "AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
-            echo "OS_TOKEN=$TOKEN" >> "$GITHUB_ENV"
-            echo "::add-mask::$TOKEN"
-            exit 0
-            fi
+          TOKEN=$(awk -F': ' 'BEGIN{IGNORECASE=1} /^X-Subject-Token/ {gsub("\r","",$2); print $2}' "$headers")
 
-            # Failure path: print ONLY the response body (no headers)
-            if command -v jq >/dev/null 2>&1; then
-            # Print full JSON body compactly (Keystone errors are JSON)
-            jq -c . "$body" || cat "$body"
-            else
-            cat "$body"
-            fi
+          if [[ -z "${TOKEN:-}" ]]; then
+            echo "No X-Subject-Token found"
             exit 1
+          fi
+        
+          echo "AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+          echo "::add-mask::$TOKEN"
           
-
       - name: Run hcdc
         shell: bash
         run: |
