@@ -1,0 +1,57 @@
+name: Run HCDC on the PR branch
+
+on:
+  pull_request:
+
+jobs:
+  run-hcdc:
+    runs-on: ubuntu-latest
+
+    env:
+      PR_BRANCH: ${{ github.head_ref || github.ref_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq for JSON construction
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Get OpenStack token (OTC)
+        env:
+          OS_USERNAME: ${{ secrets.OTC_HCDC_USERNAME }}
+          OS_PASSWORD: ${{ secrets.OTC_HCDC_PASSWORD }}
+          OS_DOMAIN_NAME: ${{ secrets.OTC_HCDC_DOMAIN_NAME }}
+          OS_PROJECT_NAME: ${{ secrets.OTC_HCDC_PROJECT_NAME }}
+        shell: bash
+        run: |
+          # Build the JSON
+          JSON=$(jq -n --arg un "$OS_USERNAME" --arg pw "$OS_PASSWORD" --arg dn "$OS_DOMAIN_NAME" --arg pn "$OS_PROJECT_NAME" \
+            '{auth:{identity:{methods:["password"],password:{user:{name:$un,password:$pw,domain:{name:$dn}}}},scope:{project:{name:$pn}}}}')
+
+          # Get the token
+          RESP_HEADERS=$(mktemp)
+          curl -sS -D "$RESP_HEADERS" -o /dev/null \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
+            -X POST "https://iam.eu-de.otc.t-systems.com/v3/auth/tokens" \
+            -d "$JSON"
+
+          TOKEN=$(grep -i "^X-Subject-Token:" "$RESP_HEADERS" | awk '{print $2}' | tr -d '\r')
+          if [ -z "$TOKEN" ]; then
+            echo "Failed to obtain token" >&2
+            echo "Response headers:" >&2
+            cat "$RESP_HEADERS" >&2
+            exit 1
+          fi
+
+          # Export token and mask it
+          echo "AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+          echo "::add-mask::$TOKEN"
+
+      - name: Run hcdc
+        shell: bash
+        run: |
+          hcdc --branch "$PR_BRANCH"
