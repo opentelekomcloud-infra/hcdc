@@ -11,6 +11,7 @@ jobs:
       OS_PASSWORD: ${{ secrets.OTC_HCDC_PASSWORD }}
       OS_DOMAIN_NAME: ${{ secrets.OTC_HCDC_DOMAIN_NAME }}
       OS_PROJECT_NAME: ${{ secrets.OTC_HCDC_PROJECT_NAME }}
+      OS_PROJECT_ID: ${{ secrets.OTC_HCDC_PROJECT_ID }}
       PR_BRANCH: ${{ github.head_ref || github.ref_name }}
 
     steps:
@@ -33,7 +34,7 @@ jobs:
               },
               "scope": {
                 "project": {
-                  "name": "${OS_PROJECT_NAME}"
+                  "id": "${OS_PROJECT_ID}"
                 }
               }
             }
