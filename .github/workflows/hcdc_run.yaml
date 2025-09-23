@@ -4,67 +4,70 @@ on:
   pull_request:
 
 jobs:
-  run-hcdc:
+  get-token:
     runs-on: ubuntu-latest
-
     env:
+      OS_USERNAME: ${{ secrets.OTC_HCDC_USERNAME }}
+      OS_PASSWORD: ${{ secrets.OTC_HCDC_PASSWORD }}
+      OS_DOMAIN_NAME: ${{ secrets.OTC_HCDC_DOMAIN_NAME }}
+      OS_PROJECT_NAME: ${{ secrets.OTC_HCDC_PROJECT_NAME }}
       PR_BRANCH: ${{ github.head_ref || github.ref_name }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Get Auth token
-        env:
-          OS_USERNAME: ${{ secrets.OTC_HCDC_USERNAME }}
-          OS_PASSWORD: ${{ secrets.OTC_HCDC_PASSWORD }}
-          OS_DOMAIN_NAME: ${{ secrets.OTC_HCDC_DOMAIN_NAME }}
-          OS_PROJECT_NAME: ${{ secrets.OTC_HCDC_PROJECT_NAME }}
+      - name: Request body
         shell: bash
         run: |
+          set -euo pipefail
           cat > body.json <<EOF
-            {
-                "auth": {
-                    "identity": {
-                        "password": {
-                            "user": {
-                            "name": "${OS_USERNAME}",
-                            "password": "${OS_PASSWORD}",
-                            "domain": { "name": "${OS_DOMAIN_NAME}" }
-                            }
-                        },
-                        "methods": [
-                            "password"
-                        ]
-                    },
-                    "scope": { 
-                        "project": { 
-                            "name": "${OS_PROJECT_NAME}" 
-                        }
-                    }
+          {
+            "auth": {
+              "identity": {
+                "methods": ["password"],
+                "password": {
+                  "user": {
+                    "name": "${OS_USERNAME}",
+                    "password": "${OS_PASSWORD}",
+                    "domain": { "name": "${OS_DOMAIN_NAME}" }
+                  }
                 }
+              },
+              "scope": {
+                "project": {
+                  "name": "${OS_PROJECT_NAME}"
+                }
+              }
             }
-            EOF
+          }
+          EOF
 
-          # Get the token
-          RESP_HEADERS=$(mktemp)
-          curl -sS -D "$RESP_HEADERS" -o /dev/null \
+      - name: Request token
+        id: token
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          headers=$(mktemp)
+          code=$(curl -sS -w "%{http_code}" -o /dev/null -D "$headers" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json" \
             -X POST "https://iam.eu-de.otc.t-systems.com/v3/auth/tokens" \
-            -d "$JSON"
+            -d @body.json)
 
-          TOKEN=$(grep -i "^X-Subject-Token:" "$RESP_HEADERS" | awk '{print $2}' | tr -d '\r')
-          if [ -z "$TOKEN" ]; then
-            echo "Failed to obtain token" >&2
-            echo "Response headers:" >&2
-            cat "$RESP_HEADERS" >&2
+          if [[ "$code" -lt 200 || "$code" -ge 300 ]]; then
+            echo "Request failed"
             exit 1
           fi
 
-          # Export token and mask it
+          TOKEN=$(awk -F': ' 'BEGIN{IGNORECASE=1} /^X-Subject-Token/ {gsub("\r","",$2); print $2}' "$headers")
+
+          if [[ -z "${TOKEN:-}" ]]; then
+            echo "No X-Subject-Token found"
+            exit 1
+          fi
+        
           echo "AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
           echo "::add-mask::$TOKEN"
+          
 
       - name: Run hcdc
         shell: bash
