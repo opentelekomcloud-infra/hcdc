@@ -40,33 +40,49 @@ jobs:
           }
           EOF
 
-      - name: Request token
+      - name: Request token (body-only diagnostics)
         id: token
         shell: bash
         run: |
-          set -euo pipefail
+            set -euo pipefail
 
-          headers=$(mktemp)
-          code=$(curl -sS -w "%{http_code}" -o /dev/null -D "$headers" \
+            headers=$(mktemp)
+            body=$(mktemp)
+
+            code=$(curl -sS -w "%{http_code}" -o "$body" -D "$headers" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json" \
+            --connect-timeout 10 --max-time 30 --retry 3 --retry-all-errors \
             -X POST "https://iam.eu-de.otc.t-systems.com/v3/auth/tokens" \
-            -d @body.json)
+            -d @body.json || echo "curl_failed")
 
-          if [[ "$code" -lt 200 || "$code" -ge 300 ]]; then
-            echo "Request failed"
+            if [[ "$code" == "curl_failed" ]]; then
+            # No HTTP response body available; emit a minimal message
+            echo "Network error: curl failed before receiving a response body"
             exit 1
-          fi
+            fi
 
-          TOKEN=$(awk -F': ' 'BEGIN{IGNORECASE=1} /^X-Subject-Token/ {gsub("\r","",$2); print $2}' "$headers")
+            # Success path: do NOT print headers or body
+            if [[ "$code" -ge 200 && "$code" -lt 300 ]]; then
+            TOKEN=$(awk -F': ' 'BEGIN{IGNORECASE=1} /^X-Subject-Token/ {gsub("\r","",$2); print $2}' "$headers" || true)
+            if [[ -z "${TOKEN:-}" ]]; then
+                echo "No X-Subject-Token found"
+                exit 1
+            fi
+            echo "AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+            echo "OS_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+            echo "::add-mask::$TOKEN"
+            exit 0
+            fi
 
-          if [[ -z "${TOKEN:-}" ]]; then
-            echo "No X-Subject-Token found"
+            # Failure path: print ONLY the response body (no headers)
+            if command -v jq >/dev/null 2>&1; then
+            # Print full JSON body compactly (Keystone errors are JSON)
+            jq -c . "$body" || cat "$body"
+            else
+            cat "$body"
+            fi
             exit 1
-          fi
-        
-          echo "AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
-          echo "::add-mask::$TOKEN"
           
 
       - name: Run hcdc
