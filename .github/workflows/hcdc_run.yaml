@@ -15,12 +15,21 @@ jobs:
       PR_BRANCH: ${{ github.head_ref || github.ref_name }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-            fetch-depth: 0
+            # Check out the PR head so PR_BRANCH exists locally
             repository: ${{ github.event.pull_request.head.repo.full_name }}
             ref: ${{ github.event.pull_request.head.ref }}
+            fetch-depth: 0
+
+      - name: Define branch env
+        run: |
+            echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> "$GITHUB_ENV"
+            echo "BASE_BRANCH=${{ github.base_ref }}" >> "$GITHUB_ENV"
+
+      - name: Fetch base branch
+        run: |
+            git fetch --no-tags --prune origin "+refs/heads/${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}"
 
       - name: Set up Python
         uses: actions/setup-python@v5
