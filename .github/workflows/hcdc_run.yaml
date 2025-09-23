@@ -14,11 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install jq for JSON construction
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-
       - name: Get Auth token
         env:
           OS_USERNAME: ${{ secrets.OTC_HCDC_USERNAME }}
@@ -27,9 +22,29 @@ jobs:
           OS_PROJECT_NAME: ${{ secrets.OTC_HCDC_PROJECT_NAME }}
         shell: bash
         run: |
-          # Build the JSON
-          JSON=$(jq -n --arg un "$OS_USERNAME" --arg pw "$OS_PASSWORD" --arg dn "$OS_DOMAIN_NAME" --arg pn "$OS_PROJECT_NAME" \
-            '{auth:{identity:{methods:["password"],password:{user:{name:$un,password:$pw,domain:{name:$dn}}}},scope:{project:{name:$pn}}}}')
+          cat > body.json <<EOF
+            {
+                "auth": {
+                    "identity": {
+                        "password": {
+                            "user": {
+                            "name": "${OS_USERNAME}",
+                            "password": "${OS_PASSWORD}",
+                            "domain": { "name": "${OS_DOMAIN_NAME}" }
+                            }
+                        },
+                        "methods": [
+                            "password"
+                        ]
+                    },
+                    "scope": { 
+                        "project": { 
+                            "name": "${OS_PROJECT_NAME}" 
+                        }
+                    }
+                }
+            }
+            EOF
 
           # Get the token
           RESP_HEADERS=$(mktemp)
