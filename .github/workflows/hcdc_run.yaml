@@ -1,0 +1,102 @@
+name: Run HCDC on the PR branch
+
+on:
+  pull_request:
+
+jobs:
+  run-hcdc:
+    runs-on: ubuntu-latest
+    env:
+      OS_USERNAME: ${{ secrets.OTC_HCDC_USERNAME }}
+      OS_PASSWORD: ${{ secrets.OTC_HCDC_PASSWORD }}
+      OS_DOMAIN_NAME: ${{ secrets.OTC_HCDC_DOMAIN_NAME }}
+      OS_PROJECT_NAME: ${{ secrets.OTC_HCDC_PROJECT_NAME }}
+      OS_PROJECT_ID: ${{ secrets.OTC_HCDC_PROJECT_ID }}
+      PR_BRANCH: ${{ github.head_ref || github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            # Check out the PR head so PR_BRANCH exists locally
+            repository: ${{ github.event.pull_request.head.repo.full_name }}
+            ref: ${{ github.event.pull_request.head.ref }}
+            fetch-depth: 0
+
+      - name: Define branch env
+        run: |
+            echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> "$GITHUB_ENV"
+            echo "BASE_BRANCH=${{ github.base_ref }}" >> "$GITHUB_ENV"
+
+      - name: Fetch base branch
+        run: |
+            git fetch --no-tags --prune origin "+refs/heads/${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install hcdc from local source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: Request body
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > body.json <<EOF
+          {
+            "auth": {
+              "identity": {
+                "methods": ["password"],
+                "password": {
+                  "user": {
+                    "name": "${OS_USERNAME}",
+                    "password": "${OS_PASSWORD}",
+                    "domain": { "name": "${OS_DOMAIN_NAME}" }
+                  }
+                }
+              },
+              "scope": {
+                "project": {
+                  "id": "${OS_PROJECT_ID}"
+                }
+              }
+            }
+          }
+          EOF
+
+      - name: Request token
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          headers=$(mktemp)
+          code=$(curl -sS -w "%{http_code}" -o /dev/null -D "$headers" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
+            -X POST "https://iam.eu-de.otc.t-systems.com/v3/auth/tokens" \
+            -d @body.json)
+
+          if [[ "$code" -lt 200 || "$code" -ge 300 ]]; then
+            echo "Request failed"
+            exit 1
+          fi
+
+          TOKEN=$(awk -F': ' 'BEGIN{IGNORECASE=1} /^X-Subject-Token/ {gsub("\r","",$2); print $2}' "$headers")
+
+          if [[ -z "${TOKEN:-}" ]]; then
+            echo "No X-Subject-Token found"
+            exit 1
+          fi
+
+          echo "AUTH_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+          echo "::add-mask::$TOKEN"
+
+      - name: Run hcdc
+        shell: bash
+        run: |
+          hcdc --branch "$PR_BRANCH" --main-branch "origin/$BASE_BRANCH"

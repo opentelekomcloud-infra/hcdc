@@ -134,9 +134,6 @@ def get_changed_files(repo_path, branch, main_branch):
     # Checkout the branch
     repo.git.checkout(branch)
 
-    # Fetch the main branch to ensure we have the latest changes
-    repo.remotes.origin.fetch(main_branch)
-
     # Get the diff between the main branch and the specified branch,
     # only changed and new files
     diff = repo.git.diff(main_branch, branch, name_only=True, diff_filter="AM")
@@ -163,4 +160,11 @@ def main():
 
     output_text = text_processing(args=args, changed_files=changed_files)
 
-    return json.dumps({"images": output_images, "text": output_text})
+    logging.info(
+        msg=json.dumps({"images": output_images, "text": output_text})
+    )
+
+    if output_images["detected"] is False and output_text["detected"] is False:
+        return 0
+    else:
+        return 1
