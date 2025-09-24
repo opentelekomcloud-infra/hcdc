@@ -160,7 +160,9 @@ def main():
 
     output_text = text_processing(args=args, changed_files=changed_files)
 
-    logging.info(msg=json.dumps({"images": output_images, "text": output_text}))
+    logging.info(
+        msg=json.dumps({"images": output_images, "text": output_text})
+    )
 
     if output_images["detected"] is False and output_text["detected"] is False:
         return 0
