@@ -29,8 +29,9 @@ def get_parser():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter
     )
+    parser.add_argument("--file-name", help="File name for json output.")
     parser.add_argument(
-        "--debug", action="store_true", help=" Option enables Debug output."
+        "--debug", action="store_true", help="Option enables Debug output."
     )
     parser.add_argument(
         "--processes",
@@ -160,11 +161,13 @@ def main():
     output_text = text_processing(args=args, changed_files=changed_files)
 
     payload = json.dumps({"images": output_images, "text": output_text})
-    logging.info(
-        msg=payload
-    )
+    logging.info(msg=payload)
+
+    if args.file_name:
+        with open(args.file_name, "w") as f:
+            f.write(payload)
 
     if output_images["detected"] is False and output_text["detected"] is False:
-        return 0, payload
+        return 0
     else:
-        return 1, payload
+        return 1
