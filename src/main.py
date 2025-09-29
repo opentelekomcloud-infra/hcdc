@@ -137,7 +137,9 @@ def get_changed_files(repo_path, branch, main_branch):
 
     # Get the diff between the main branch and the specified branch,
     # only changed and new files
-    diff = repo.git.diff(main_branch, branch, name_only=True, diff_filter="AM")
+    diff = repo.git.diff(
+        f"{main_branch}...{branch}", name_only=True, diff_filter="AM"
+    )
 
     # Split the output by lines
     changed_files = diff.splitlines()
