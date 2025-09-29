@@ -1,6 +1,20 @@
 CHANGES
 =======
 
+0.2.1
+-----
+
+* add payload output (#7)
+
+0.2.0
+-----
+
+* Gh actions (#6)
+
+0.1.0
+-----
+
+* Fix input validation (#5)
 * Fix false positives (#4)
 * Update README.md (#3)
 * enable zuul builds and refactor code style (#2)
